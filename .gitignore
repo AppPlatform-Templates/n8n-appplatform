@@ -1,0 +1,27 @@
+# Environment and credentials
+.env
+.env.*
+.db-credentials.txt
+*.pem
+*.key
+
+# Build artifacts
+node_modules/
+dist/
+build/
+compiled/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+.do/app-doctl.yaml

@@ -1,0 +1,151 @@
+# n8n Queue Mode Deployment
+# For 100-1000 workflows/day, scalable production use
+# Cost: ~$54/month base (Main + 1 Worker + PostgreSQL + Redis)
+#
+# Deploy with: doctl apps create --spec .do/examples/queue-mode.yaml
+# Scale workers: doctl apps update YOUR_APP_ID --spec <updated-spec>
+
+spec:
+  name: n8n-queue
+  region: ams
+
+  # Main Service - UI, API, Webhooks
+  services:
+    - name: n8n-main
+      image:
+        registry_type: GHCR
+        registry: ghcr.io
+        repository: n8n-io/n8n
+        tag: "1.116.2"
+      http_port: 5678
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb
+
+      health_check:
+        http_path: /healthz
+        initial_delay_seconds: 60
+        period_seconds: 10
+        timeout_seconds: 3
+        success_threshold: 1
+        failure_threshold: 3
+
+      envs:
+        # Database Configuration
+        - key: DB_TYPE
+          value: postgresdb
+        - key: DB_POSTGRESDB_HOST
+          value: ${n8n-db.HOSTNAME}
+        - key: DB_POSTGRESDB_PORT
+          value: ${n8n-db.PORT}
+        - key: DB_POSTGRESDB_DATABASE
+          value: ${n8n-db.DATABASE}
+        - key: DB_POSTGRESDB_USER
+          value: ${n8n-db.USERNAME}
+        - key: DB_POSTGRESDB_PASSWORD
+          value: ${n8n-db.PASSWORD}
+
+        # Queue Mode Configuration
+        - key: EXECUTIONS_MODE
+          value: queue
+        - key: QUEUE_BULL_REDIS_HOST
+          value: ${n8n-redis.HOSTNAME}
+        - key: QUEUE_BULL_REDIS_PORT
+          value: ${n8n-redis.PORT}
+        - key: QUEUE_BULL_REDIS_PASSWORD
+          value: ${n8n-redis.PASSWORD}
+
+        # n8n Configuration
+        - key: N8N_HOST
+          value: ${APP_URL}
+        - key: N8N_PROTOCOL
+          value: https
+        - key: N8N_PORT
+          value: "5678"
+        - key: WEBHOOK_URL
+          value: https://${APP_URL}/
+
+        # Security - CHANGE THESE!
+        - key: N8N_ENCRYPTION_KEY
+          value: CHANGE_THIS_TO_RANDOM_STRING
+          scope: RUN_TIME
+          type: SECRET
+
+        # Application Settings
+        - key: N8N_USER_FOLDER
+          value: /home/node/.n8n
+        - key: N8N_DIAGNOSTICS_ENABLED
+          value: "false"
+        - key: GENERIC_TIMEZONE
+          value: Europe/Amsterdam
+        - key: TZ
+          value: Europe/Amsterdam
+
+  # Worker - Executes Workflows
+  workers:
+    - name: n8n-worker
+      image:
+        registry_type: GHCR
+        registry: ghcr.io
+        repository: n8n-io/n8n
+        tag: "1.116.2"
+      instance_count: 1  # Scale this: 1-10 based on load
+      instance_size_slug: apps-s-1vcpu-1gb
+
+      # Critical: Run in worker mode
+      run_command: n8n worker
+
+      envs:
+        # Database Configuration
+        - key: DB_TYPE
+          value: postgresdb
+        - key: DB_POSTGRESDB_HOST
+          value: ${n8n-db.HOSTNAME}
+        - key: DB_POSTGRESDB_PORT
+          value: ${n8n-db.PORT}
+        - key: DB_POSTGRESDB_DATABASE
+          value: ${n8n-db.DATABASE}
+        - key: DB_POSTGRESDB_USER
+          value: ${n8n-db.USERNAME}
+        - key: DB_POSTGRESDB_PASSWORD
+          value: ${n8n-db.PASSWORD}
+
+        # Queue Mode Configuration
+        - key: EXECUTIONS_MODE
+          value: queue
+        - key: QUEUE_BULL_REDIS_HOST
+          value: ${n8n-redis.HOSTNAME}
+        - key: QUEUE_BULL_REDIS_PORT
+          value: ${n8n-redis.PORT}
+        - key: QUEUE_BULL_REDIS_PASSWORD
+          value: ${n8n-redis.PASSWORD}
+        - key: QUEUE_HEALTH_CHECK_ACTIVE
+          value: "true"
+
+        # Worker Concurrency (jobs per worker)
+        - key: N8N_CONCURRENCY_PRODUCTION_LIMIT
+          value: "10"
+
+        # Security - SAME AS MAIN!
+        - key: N8N_ENCRYPTION_KEY
+          value: CHANGE_THIS_TO_RANDOM_STRING
+          scope: RUN_TIME
+          type: SECRET
+
+        # Application Settings
+        - key: N8N_USER_FOLDER
+          value: /home/node/.n8n
+        - key: N8N_DIAGNOSTICS_ENABLED
+          value: "false"
+
+  # Databases
+  databases:
+    - name: n8n-db
+      engine: PG
+      version: "17"
+      production: false  # Set true for production
+      cluster_name: n8n-postgres
+
+    - name: n8n-redis
+      engine: REDIS
+      version: "7"
+      production: false  # Set true for production

@@ -1,0 +1,69 @@
+spec:
+  name: n8n-test
+  region: ams3
+
+  services:
+    - name: n8n
+      image:
+        registry_type: GHCR
+        registry: ghcr.io
+        repository: n8n-io/n8n
+        tag: "1.116.2"
+      http_port: 5678
+      instance_count: 1
+      instance_size_slug: apps-s-1vcpu-1gb
+
+      health_check:
+        http_path: /healthz
+        initial_delay_seconds: 60
+        period_seconds: 10
+        timeout_seconds: 3
+        success_threshold: 1
+        failure_threshold: 3
+
+      envs:
+        # Database Configuration (PostgreSQL)
+        - key: DB_TYPE
+          value: postgresdb
+        - key: DB_POSTGRESDB_HOST
+          value: n8n-db-do-user-8198484-0.g.db.ondigitalocean.com
+        - key: DB_POSTGRESDB_PORT
+          value: "25060"
+        - key: DB_POSTGRESDB_DATABASE
+          value: defaultdb
+        - key: DB_POSTGRESDB_USER
+          value: doadmin
+        - key: DB_POSTGRESDB_PASSWORD
+          value: AVNS_YDNq0968xMGFpw1VU7x
+          scope: RUN_TIME
+          type: SECRET
+
+        # n8n Configuration
+        - key: N8N_PROTOCOL
+          value: https
+        - key: N8N_PORT
+          value: "5678"
+
+        # Security - Generated encryption key for testing
+        - key: N8N_ENCRYPTION_KEY
+          value: test_encryption_key_change_in_production
+          scope: RUN_TIME
+          type: SECRET
+
+        # User folder for n8n data
+        - key: N8N_USER_FOLDER
+          value: /home/node/.n8n
+
+        # Disable telemetry
+        - key: N8N_DIAGNOSTICS_ENABLED
+          value: "false"
+
+        # Timezone
+        - key: GENERIC_TIMEZONE
+          value: Europe/Amsterdam
+        - key: TZ
+          value: Europe/Amsterdam
+
+        # Task Runner Configuration (disabled for simpler deployment)
+        - key: N8N_RUNNERS_ENABLED
+          value: "false"
