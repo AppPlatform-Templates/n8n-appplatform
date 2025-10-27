@@ -99,6 +99,305 @@ No configuration needed!
    ```
 4. Rate limit webhooks (use n8n's built-in settings)
 
+## 💾 Persistent Storage (Critical for Production)
+
+### Understanding Storage on App Platform
+
+**⚠️ Important**: App Platform containers use **ephemeral storage** - any files written to the filesystem are **lost when the container restarts**.
+
+### What Gets Stored Where
+
+#### Persistent (Database - ✅ Survives Restarts)
+- Workflows
+- Credentials (encrypted)
+- Execution history
+- User accounts
+- Settings
+
+#### Ephemeral (Container - ❌ Lost on Restart)
+- Custom community nodes
+- Binary data from workflows (files, images, PDFs)
+- Uploaded attachments
+- Workflow-generated files
+- Log files (unless configured otherwise)
+
+### When You Need Spaces
+
+**✅ You NEED Spaces if:**
+- Workflows handle file uploads/downloads
+- Using binary data (images, PDFs, documents)
+- Installing custom community nodes
+- Workflows generate files
+- **Running in production** (highly recommended)
+
+**⏭️ You can skip Spaces if:**
+- Testing/development only
+- Workflows only use built-in nodes
+- No file handling in workflows
+- Willing to lose custom nodes on restart
+
+### Setting Up DigitalOcean Spaces
+
+#### 1. Create a Space
+
+```bash
+# Create Space in your region
+doctl spaces create n8n-storage-ams3 --region ams3
+
+# Or use NYC1, SFO3, SGP1, etc. - match your app region
+doctl spaces create n8n-storage-nyc3 --region nyc3
+```
+
+#### 2. Generate Access Keys
+
+```bash
+# Create Spaces access key
+doctl spaces keys create n8n-storage-key
+
+# Output will show:
+# Access Key: DO00ABC123...
+# Secret Key: xyz789...
+#
+# ⚠️ SAVE THESE - Secret key shown only once!
+```
+
+#### 3. Configure CORS (for file uploads)
+
+Create `cors-config.json`:
+```json
+{
+  "CORSRules": [
+    {
+      "AllowedOrigins": ["https://your-app.ondigitalocean.app"],
+      "AllowedMethods": ["GET", "PUT", "POST", "DELETE"],
+      "AllowedHeaders": ["*"],
+      "MaxAgeSeconds": 3000
+    }
+  ]
+}
+```
+
+Apply CORS:
+```bash
+# Install s3cmd if needed
+brew install s3cmd  # macOS
+# or: apt-get install s3cmd  # Linux
+
+# Configure s3cmd (one-time setup)
+s3cmd --configure
+
+# Apply CORS
+s3cmd setcors cors-config.json s3://n8n-storage-ams3
+```
+
+#### 4. Update Your App Configuration
+
+Edit your `.do/deploy.template.yaml` or app spec:
+
+```yaml
+services:
+  - name: n8n
+    envs:
+      # ... existing envs ...
+
+      # Persistent File Storage Configuration
+      - key: N8N_DEFAULT_BINARY_DATA_MODE
+        value: filesystem
+
+      # Spaces Configuration (S3-compatible)
+      - key: AWS_ACCESS_KEY_ID
+        value: YOUR_SPACES_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+
+      - key: AWS_SECRET_ACCESS_KEY
+        value: YOUR_SPACES_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+
+      - key: AWS_S3_BUCKET_NAME
+        value: n8n-storage-ams3
+
+      - key: AWS_S3_ENDPOINT
+        value: https://ams3.digitaloceanspaces.com
+
+      # Force path-style URLs (required for Spaces)
+      - key: AWS_S3_FORCE_PATH_STYLE
+        value: "true"
+
+      # Optional: Organize files by region/env
+      - key: AWS_S3_PREFIX
+        value: production/
+```
+
+#### 5. Deploy Updated Configuration
+
+```bash
+# Update existing app
+doctl apps update YOUR_APP_ID --spec .do/deploy.template.yaml
+
+# Or create new app
+doctl apps create --spec .do/deploy.template.yaml
+```
+
+### Verifying Spaces Integration
+
+#### 1. Test File Upload
+
+Create a test workflow:
+1. Add "HTTP Request" node
+2. Add "Write Binary File" node
+3. Execute workflow
+4. Check your Space for the file
+
+#### 2. Check Space Contents
+
+```bash
+# List files in Space
+s3cmd ls s3://n8n-storage-ams3/
+
+# Or via doctl
+doctl spaces list-objects n8n-storage-ams3 --region ams3
+```
+
+#### 3. Monitor Storage Usage
+
+```bash
+# Check Space size
+doctl spaces list
+
+# View detailed stats via DigitalOcean Control Panel
+# Spaces → Your Space → Settings → Usage
+```
+
+### Storage Best Practices
+
+#### Cost Management
+
+**Spaces Pricing**:
+- $5/month for 250GB storage
+- $0.02/GB after that
+- $0.01/GB for outbound transfer
+
+**Optimization**:
+```bash
+# Set lifecycle rules to auto-delete old files
+# Create lifecycle-config.json:
+{
+  "Rules": [
+    {
+      "Status": "Enabled",
+      "Expiration": {
+        "Days": 90
+      },
+      "Filter": {
+        "Prefix": "temp/"
+      }
+    }
+  ]
+}
+
+# Apply lifecycle rules
+s3cmd setlifecycle lifecycle-config.json s3://n8n-storage-ams3
+```
+
+#### Security
+
+**1. Use CDN (Optional)**
+```bash
+# Enable CDN for faster file delivery
+doctl spaces cdn enable n8n-storage-ams3 --region ams3
+```
+
+**2. Set Bucket Permissions**
+```bash
+# Private by default (recommended)
+# Only allow access via signed URLs
+
+# Make specific folder public (if needed)
+s3cmd setacl s3://n8n-storage-ams3/public/ --acl-public
+```
+
+**3. Rotate Access Keys Regularly**
+```bash
+# Create new key
+doctl spaces keys create n8n-storage-key-2
+
+# Update app config with new keys
+# Delete old key
+doctl spaces keys delete OLD_KEY_ID
+```
+
+### Backup Considerations
+
+**Spaces Data Backup**:
+```bash
+# Backup Space to another region
+s3cmd sync s3://n8n-storage-ams3/ s3://n8n-backup-nyc3/
+
+# Or download locally
+s3cmd sync s3://n8n-storage-ams3/ ./local-backup/
+```
+
+**Database + Spaces = Complete Backup**:
+- Database backup = workflows, credentials, metadata
+- Spaces backup = binary files, attachments
+- **Both needed** for full recovery
+
+### Troubleshooting
+
+#### Files Not Persisting
+
+**Check Configuration**:
+```bash
+# Verify env vars are set
+doctl apps spec get YOUR_APP_ID
+
+# Look for:
+# - N8N_DEFAULT_BINARY_DATA_MODE=filesystem
+# - AWS_ACCESS_KEY_ID (should show [SECRET])
+# - AWS_S3_BUCKET_NAME
+```
+
+#### Connection Errors
+
+**Common Issues**:
+1. **Wrong endpoint**: Use `https://REGION.digitaloceanspaces.com`
+2. **Missing PATH_STYLE**: Set `AWS_S3_FORCE_PATH_STYLE=true`
+3. **Invalid credentials**: Regenerate Spaces keys
+4. **CORS errors**: Check CORS configuration
+
+**Debug**:
+```bash
+# Test connection with s3cmd
+s3cmd ls s3://n8n-storage-ams3/
+
+# Check n8n logs for errors
+doctl apps logs YOUR_APP_ID --type run | grep -i s3
+```
+
+#### Permission Errors
+
+**Solution**:
+```bash
+# Verify key has Spaces permissions
+doctl spaces keys list
+
+# Ensure app has access to secrets
+doctl apps spec get YOUR_APP_ID | grep -A 5 AWS_ACCESS_KEY_ID
+```
+
+### Migration from Ephemeral to Spaces
+
+**If You're Already Running Without Spaces**:
+
+1. **Create Space** (steps above)
+2. **Don't delete existing app** (workflows are in DB, safe)
+3. **Update app spec** with Spaces config
+4. **Deploy update**: `doctl apps update YOUR_APP_ID --spec ...`
+5. **Test file handling** in workflows
+6. **Note**: Existing files in ephemeral storage will be lost on next restart
+
 ## 📊 Monitoring & Observability
 
 ### 1. Enable Application Metrics

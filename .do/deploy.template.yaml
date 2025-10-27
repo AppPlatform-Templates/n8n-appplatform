@@ -71,17 +71,38 @@ spec:
         - key: N8N_RUNNERS_ENABLED
           value: "false"
 
-        # Optional: File storage (uncomment if using Spaces)
+        # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
+        # App Platform uses ephemeral storage - files are lost on container restart
+        #
+        # REQUIRED for production if you:
+        # - Handle file uploads/downloads in workflows
+        # - Use custom community nodes
+        # - Process binary data (images, PDFs, etc.)
+        #
+        # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
+        # Quick setup (5 min):
+        #   1. doctl spaces create n8n-storage-ams3 --region ams3
+        #   2. doctl spaces keys create n8n-storage-key
+        #   3. Uncomment and configure variables below
+        #
+        # Cost: $5/month for 250GB + $0.02/GB thereafter
+        #
         # - key: N8N_DEFAULT_BINARY_DATA_MODE
         #   value: filesystem
         # - key: AWS_ACCESS_KEY_ID
-        #   value: YOUR_SPACES_KEY
+        #   value: YOUR_SPACES_ACCESS_KEY
+        #   scope: RUN_TIME
+        #   type: SECRET
         # - key: AWS_SECRET_ACCESS_KEY
-        #   value: YOUR_SPACES_SECRET
-        # - key: AWS_S3_BUCKET
+        #   value: YOUR_SPACES_SECRET_KEY
+        #   scope: RUN_TIME
+        #   type: SECRET
+        # - key: AWS_S3_BUCKET_NAME
         #   value: n8n-storage-ams3
         # - key: AWS_S3_ENDPOINT
         #   value: https://ams3.digitaloceanspaces.com
+        # - key: AWS_S3_FORCE_PATH_STYLE
+        #   value: "true"
 
   databases:
     - name: n8n-db

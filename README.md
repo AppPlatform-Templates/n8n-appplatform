@@ -74,6 +74,37 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 **Need help deciding?** See [SCALING.md](SCALING.md)
 
+---
+
+### ⚠️ Production Storage Consideration
+
+**Important for Production Deployments:**
+
+App Platform uses **ephemeral storage** - files are lost on container restart. For production use:
+
+- **✅ Database** stores: workflows, credentials, execution history (persistent)
+- **❌ Container** stores: binary files, custom nodes, uploads (ephemeral)
+
+**Recommendation**: Configure [DigitalOcean Spaces](PRODUCTION.md#-persistent-storage-critical-for-production) ($5/month) for persistent file storage if:
+- Workflows handle file uploads/downloads
+- Using custom community nodes
+- Processing binary data (images, PDFs, etc.)
+
+**Quick Setup** (5 minutes):
+```bash
+# 1. Create Space
+doctl spaces create n8n-storage-ams3 --region ams3
+
+# 2. Create access keys
+doctl spaces keys create n8n-storage-key
+
+# 3. Add to your app spec - see PRODUCTION.md for full config
+```
+
+📖 **Full guide**: [Persistent Storage Setup](PRODUCTION.md#-persistent-storage-critical-for-production)
+
+---
+
 ## What is n8n?
 
 n8n is a **fair-code licensed workflow automation tool** - an open-source alternative to Zapier that you can self-host.
@@ -104,10 +135,11 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 ## What's Included
 
 - n8n v1.116.2 (latest stable)
-- PostgreSQL 17 database
+- PostgreSQL 17 database (persistent storage)
 - SSL/TLS encryption
 - Automated backups
 - Health monitoring
+- Optional: Spaces for persistent file storage ($5/month)
 
 ## Example Use Cases
 

@@ -80,6 +80,27 @@ spec:
         - key: TZ
           value: Europe/Amsterdam
 
+        # Persistent File Storage - RECOMMENDED for production
+        # Setup: doctl spaces create n8n-storage-ams3 --region ams3
+        #        doctl spaces keys create n8n-storage-key
+        # See PRODUCTION.md#persistent-storage-critical-for-production
+        - key: N8N_DEFAULT_BINARY_DATA_MODE
+          value: filesystem
+        - key: AWS_ACCESS_KEY_ID
+          value: YOUR_SPACES_ACCESS_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: AWS_SECRET_ACCESS_KEY
+          value: YOUR_SPACES_SECRET_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: AWS_S3_BUCKET_NAME
+          value: n8n-storage-ams3
+        - key: AWS_S3_ENDPOINT
+          value: https://ams3.digitaloceanspaces.com
+        - key: AWS_S3_FORCE_PATH_STYLE
+          value: "true"
+
   # Worker - Executes Workflows
   workers:
     - name: n8n-worker
@@ -136,6 +157,24 @@ spec:
           value: /home/node/.n8n
         - key: N8N_DIAGNOSTICS_ENABLED
           value: "false"
+
+        # Persistent File Storage (SAME AS MAIN!)
+        - key: N8N_DEFAULT_BINARY_DATA_MODE
+          value: filesystem
+        - key: AWS_ACCESS_KEY_ID
+          value: YOUR_SPACES_ACCESS_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: AWS_SECRET_ACCESS_KEY
+          value: YOUR_SPACES_SECRET_KEY
+          scope: RUN_TIME
+          type: SECRET
+        - key: AWS_S3_BUCKET_NAME
+          value: n8n-storage-ams3
+        - key: AWS_S3_ENDPOINT
+          value: https://ams3.digitaloceanspaces.com
+        - key: AWS_S3_FORCE_PATH_STYLE
+          value: "true"
 
   # Databases
   databases:
