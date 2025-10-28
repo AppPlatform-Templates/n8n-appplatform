@@ -26,27 +26,35 @@ spec:
         - key: DB_TYPE
           value: postgresdb
         - key: DB_POSTGRESDB_HOST
-          value: n8n-db-do-user-8198484-0.g.db.ondigitalocean.com
+          value: ${n8n-db.HOSTNAME}
         - key: DB_POSTGRESDB_PORT
-          value: "25060"
+          value: ${n8n-db.PORT}
         - key: DB_POSTGRESDB_DATABASE
-          value: defaultdb
+          value: ${n8n-db.DATABASE}
         - key: DB_POSTGRESDB_USER
-          value: doadmin
+          value: ${n8n-db.USERNAME}
         - key: DB_POSTGRESDB_PASSWORD
-          value: AVNS_YDNq0968xMGFpw1VU7x
-          scope: RUN_TIME
-          type: SECRET
+          value: ${n8n-db.PASSWORD}
+
+        # SSL Configuration for PostgreSQL (required for DigitalOcean managed databases)
+        - key: DB_POSTGRESDB_SSL_ENABLED
+          value: "true"
+        - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+          value: "false"
 
         # n8n Configuration
+        - key: N8N_HOST
+          value: ${APP_URL}
         - key: N8N_PROTOCOL
           value: https
         - key: N8N_PORT
           value: "5678"
+        - key: WEBHOOK_URL
+          value: https://${APP_URL}/
 
-        # Security - Generated encryption key for testing
+        # Security - IMPORTANT: Change this value!
         - key: N8N_ENCRYPTION_KEY
-          value: test_encryption_key_change_in_production
+          value: CHANGE_THIS_TO_RANDOM_STRING
           scope: RUN_TIME
           type: SECRET
 
@@ -67,3 +75,10 @@ spec:
         # Task Runner Configuration (disabled for simpler deployment)
         - key: N8N_RUNNERS_ENABLED
           value: "false"
+
+  databases:
+    - name: n8n-db
+      engine: PG
+      version: "17"
+      production: false
+      cluster_name: n8n-db
