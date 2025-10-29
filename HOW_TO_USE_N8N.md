@@ -273,6 +273,8 @@ graph LR
 
 **Solutions**:
 - Verify `DB_POSTGRESDB_*` environment variables
+- DB_POSTGRESDB_SSL_ENABLED=true
+  DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED=false
 - Check database firewall (trusted sources)
 - Ensure database is running
 - Test connection with:
