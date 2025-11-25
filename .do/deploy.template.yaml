@@ -36,6 +36,12 @@ spec:
         - key: DB_POSTGRESDB_PASSWORD
           value: ${n8n-db.PASSWORD}
 
+        # SSL Configuration (required for DigitalOcean managed databases)
+        - key: DB_POSTGRESDB_SSL_ENABLED
+          value: "true"
+        - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+          value: "false"
+
         # n8n Configuration
         - key: N8N_HOST
           value: ${APP_URL}
