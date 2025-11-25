@@ -23,24 +23,9 @@ spec:
 
       envs:
         # Database Configuration (PostgreSQL)
-        - key: DB_TYPE
-          value: postgresdb
-        - key: DB_POSTGRESDB_HOST
-          value: ${n8n-db.HOSTNAME}
-        - key: DB_POSTGRESDB_PORT
-          value: ${n8n-db.PORT}
-        - key: DB_POSTGRESDB_DATABASE
-          value: ${n8n-db.DATABASE}
-        - key: DB_POSTGRESDB_USER
-          value: ${n8n-db.USERNAME}
-        - key: DB_POSTGRESDB_PASSWORD
-          value: ${n8n-db.PASSWORD}
-
-        # SSL Configuration (required for DigitalOcean managed databases)
-        - key: DB_POSTGRESDB_SSL_ENABLED
-          value: "true"
-        - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
-          value: "false"
+        # Use DATABASE_URL which includes SSL configuration automatically
+        - key: DATABASE_URL
+          value: ${n8n-db.DATABASE_URL}
 
         # n8n Configuration
         - key: N8N_HOST
