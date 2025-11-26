@@ -29,19 +29,10 @@ services:
       failure_threshold: 3
 
     envs:
-      # Database Configuration
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        value: ${n8n-db.HOSTNAME}
-      - key: DB_POSTGRESDB_PORT
-        value: ${n8n-db.PORT}
-      - key: DB_POSTGRESDB_DATABASE
-        value: ${n8n-db.DATABASE}
-      - key: DB_POSTGRESDB_USER
-        value: ${n8n-db.USERNAME}
-      - key: DB_POSTGRESDB_PASSWORD
-        value: ${n8n-db.PASSWORD}
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-postgres.DATABASE_URL}
 
       # n8n Configuration
       - key: N8N_HOST
@@ -71,15 +62,30 @@ services:
         scope: RUN_TIME
         type: SECRET
 
-      # Application Settings
-      - key: N8N_USER_FOLDER
-        value: /home/node/.n8n
-      - key: N8N_DIAGNOSTICS_ENABLED
-        value: "false"
+      # Timezone
       - key: GENERIC_TIMEZONE
         value: Europe/Amsterdam
-      - key: TZ
-        value: Europe/Amsterdam
+
+      # Persistent File Storage - RECOMMENDED for production
+      # Setup: doctl spaces keys create n8n-storage-key
+      #        Create a Spaces bucket with name n8n-storage-ams3
+      # See PRODUCTION.md#persistent-storage-critical-for-production
+      - key: N8N_DEFAULT_BINARY_DATA_MODE
+        value: filesystem
+      - key: AWS_ACCESS_KEY_ID
+        value: YOUR_SPACES_ACCESS_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: AWS_SECRET_ACCESS_KEY
+        value: YOUR_SPACES_SECRET_KEY
+        scope: RUN_TIME
+        type: SECRET
+      - key: AWS_S3_BUCKET_NAME
+        value: n8n-storage-ams3
+      - key: AWS_S3_ENDPOINT
+        value: https://ams3.digitaloceanspaces.com
+      - key: AWS_S3_FORCE_PATH_STYLE
+        value: "true"
 
 # Task Runners - Execute JavaScript/Python Code
 workers:
@@ -103,8 +109,8 @@ workers:
 
 # Database
 databases:
-  - name: n8n-db
+  - name: n8n-postgres
     engine: PG
     version: "17"
-    production: false
-    cluster_name: n8n-db
+    production: true
+    cluster_name: n8n-postgres
