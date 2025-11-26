@@ -43,6 +43,8 @@ services:
         value: ${n8n-redis.PORT}
       - key: QUEUE_BULL_REDIS_PASSWORD
         value: ${n8n-redis.PASSWORD}
+      - key: QUEUE_BULL_REDIS_TLS
+        value: "true"
 
       # n8n Configuration
       - key: N8N_HOST
@@ -112,6 +114,8 @@ workers:
         value: ${n8n-redis.PORT}
       - key: QUEUE_BULL_REDIS_PASSWORD
         value: ${n8n-redis.PASSWORD}
+      - key: QUEUE_BULL_REDIS_TLS
+        value: "true"
       - key: QUEUE_HEALTH_CHECK_ACTIVE
         value: "true"
 
