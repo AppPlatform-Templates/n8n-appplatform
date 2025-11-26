@@ -32,8 +32,6 @@ spec:
           value: ${APP_URL}
         - key: N8N_PROTOCOL
           value: https
-        - key: N8N_PORT
-          value: "5678"
         - key: WEBHOOK_URL
           value: https://${APP_URL}/
 
@@ -44,24 +42,9 @@ spec:
           scope: RUN_TIME
           type: SECRET
 
-        # User folder for n8n data
-        - key: N8N_USER_FOLDER
-          value: /home/node/.n8n
-
-        # Disable telemetry in production
-        - key: N8N_DIAGNOSTICS_ENABLED
-          value: "false"
-
         # Timezone
         - key: GENERIC_TIMEZONE
           value: Europe/Amsterdam
-        - key: TZ
-          value: Europe/Amsterdam
-
-        # Task Runners (disabled for simpler deployment)
-        # For code execution sandboxing, see deploy-with-runners.template.yaml
-        - key: N8N_RUNNERS_ENABLED
-          value: "false"
 
         # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
         # App Platform uses ephemeral storage - files are lost on container restart
