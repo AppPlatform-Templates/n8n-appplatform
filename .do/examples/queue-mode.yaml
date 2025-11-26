@@ -5,7 +5,7 @@
 # Deploy with: doctl apps create --spec .do/examples/queue-mode.yaml
 # Scale workers: doctl apps update YOUR_APP_ID --spec <updated-spec>
 
-name: n8n-queue
+name: n8n-queue-mode
 region: ams
 
 # Main Service - UI, API, Webhooks
