@@ -32,7 +32,7 @@ services:
       # Database Configuration (PostgreSQL)
       # Use DATABASE_URL which includes SSL configuration automatically
       - key: DATABASE_URL
-        value: ${n8n-db.DATABASE_URL}
+        value: ${n8n-postgres.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -101,7 +101,7 @@ workers:
       # Database Configuration (PostgreSQL)
       # Use DATABASE_URL which includes SSL configuration automatically
       - key: DATABASE_URL
-        value: ${n8n-db.DATABASE_URL}
+        value: ${n8n-postgres.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -145,7 +145,7 @@ workers:
 
 # Databases
 databases:
-  - name: n8n-db
+  - name: n8n-postgres
     engine: PG
     version: "17"
     production: true
