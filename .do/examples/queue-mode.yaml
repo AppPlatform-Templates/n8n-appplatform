@@ -29,19 +29,10 @@ services:
       failure_threshold: 3
 
     envs:
-      # Database Configuration
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        value: ${n8n-db.HOSTNAME}
-      - key: DB_POSTGRESDB_PORT
-        value: ${n8n-db.PORT}
-      - key: DB_POSTGRESDB_DATABASE
-        value: ${n8n-db.DATABASE}
-      - key: DB_POSTGRESDB_USER
-        value: ${n8n-db.USERNAME}
-      - key: DB_POSTGRESDB_PASSWORD
-        value: ${n8n-db.PASSWORD}
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-db.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -58,8 +49,6 @@ services:
         value: ${APP_URL}
       - key: N8N_PROTOCOL
         value: https
-      - key: N8N_PORT
-        value: "5678"
       - key: WEBHOOK_URL
         value: https://${APP_URL}/
 
@@ -69,19 +58,13 @@ services:
         scope: RUN_TIME
         type: SECRET
 
-      # Application Settings
-      - key: N8N_USER_FOLDER
-        value: /home/node/.n8n
-      - key: N8N_DIAGNOSTICS_ENABLED
-        value: "false"
+      # Timezone
       - key: GENERIC_TIMEZONE
-        value: Europe/Amsterdam
-      - key: TZ
         value: Europe/Amsterdam
 
       # Persistent File Storage - RECOMMENDED for production
-      # Setup: doctl spaces create n8n-storage-ams3 --region ams3
-      #        doctl spaces keys create n8n-storage-key
+      # Setup: doctl spaces keys create n8n-storage-key
+      #        Create a Spaces bucket with name n8n-storage-ams3
       # See PRODUCTION.md#persistent-storage-critical-for-production
       - key: N8N_DEFAULT_BINARY_DATA_MODE
         value: filesystem
@@ -115,19 +98,10 @@ workers:
     run_command: n8n worker
 
     envs:
-      # Database Configuration
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        value: ${n8n-db.HOSTNAME}
-      - key: DB_POSTGRESDB_PORT
-        value: ${n8n-db.PORT}
-      - key: DB_POSTGRESDB_DATABASE
-        value: ${n8n-db.DATABASE}
-      - key: DB_POSTGRESDB_USER
-        value: ${n8n-db.USERNAME}
-      - key: DB_POSTGRESDB_PASSWORD
-        value: ${n8n-db.PASSWORD}
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-db.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -150,12 +124,6 @@ workers:
         value: CHANGE_THIS_TO_RANDOM_STRING
         scope: RUN_TIME
         type: SECRET
-
-      # Application Settings
-      - key: N8N_USER_FOLDER
-        value: /home/node/.n8n
-      - key: N8N_DIAGNOSTICS_ENABLED
-        value: "false"
 
       # Persistent File Storage (SAME AS MAIN!)
       - key: N8N_DEFAULT_BINARY_DATA_MODE
@@ -180,10 +148,10 @@ databases:
   - name: n8n-db
     engine: PG
     version: "17"
-    production: false  # Set true for production
+    production: true
     cluster_name: n8n-postgres
 
   - name: n8n-redis
     engine: REDIS
     version: "7"
-    production: false  # Set true for production
+    production: true
