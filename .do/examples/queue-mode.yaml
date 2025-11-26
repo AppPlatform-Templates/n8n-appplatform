@@ -152,6 +152,7 @@ databases:
     cluster_name: n8n-postgres
 
   - name: n8n-redis
-    engine: REDIS
-    version: "7"
+    engine: VALKEY
+    version: "8"
     production: true
+    cluster_name: n8n-redis
