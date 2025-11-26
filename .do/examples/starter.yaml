@@ -4,90 +4,89 @@
 #
 # Deploy with: doctl apps create --spec .do/examples/starter.yaml
 
-spec:
-  name: n8n
-  region: ams
+name: n8n
+region: ams
 
-  services:
-    - name: n8n
-      image:
-        registry_type: GHCR
-        registry: ghcr.io
-        repository: n8n-io/n8n
-        tag: "latest"  # Use "latest" for newest features, or pin to specific version (e.g., "1.116.2") for stability
-      http_port: 5678
-      instance_count: 1
-      instance_size_slug: apps-s-1vcpu-1gb
+services:
+  - name: n8n
+    image:
+      registry_type: GHCR
+      registry: ghcr.io
+      repository: n8n-io/n8n
+      tag: "latest"  # Use "latest" for newest features, or pin to specific version (e.g., "1.116.2") for stability
+    http_port: 5678
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
 
-      health_check:
-        http_path: /healthz
-        initial_delay_seconds: 60
-        period_seconds: 10
-        timeout_seconds: 3
-        success_threshold: 1
-        failure_threshold: 3
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 3
+      success_threshold: 1
+      failure_threshold: 3
 
-      envs:
-        # Database Configuration (PostgreSQL)
-        # Use DATABASE_URL which includes SSL configuration automatically
-        - key: DATABASE_URL
-          value: ${n8n-db.DATABASE_URL}
+    envs:
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-db.DATABASE_URL}
 
-        # n8n Configuration
-        - key: N8N_HOST
-          value: ${APP_URL}
-        - key: N8N_PROTOCOL
-          value: https
-        - key: WEBHOOK_URL
-          value: https://${APP_URL}/
+      # n8n Configuration
+      - key: N8N_HOST
+        value: ${APP_URL}
+      - key: N8N_PROTOCOL
+        value: https
+      - key: WEBHOOK_URL
+        value: https://${APP_URL}/
 
-        # Security - Pre-configured for easy starter deployment
-        # For production, rotate this key using: openssl rand -base64 32
-        - key: N8N_ENCRYPTION_KEY
-          value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
-          scope: RUN_TIME
-          type: SECRET
+      # Security - Pre-configured for easy starter deployment
+      # For production, rotate this key using: openssl rand -base64 32
+      - key: N8N_ENCRYPTION_KEY
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
+        scope: RUN_TIME
+        type: SECRET
 
-        # Timezone
-        - key: GENERIC_TIMEZONE
-          value: Europe/Amsterdam
+      # Timezone
+      - key: GENERIC_TIMEZONE
+        value: Europe/Amsterdam
 
-        # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
-        # App Platform uses ephemeral storage - files are lost on container restart
-        #
-        # REQUIRED for production if you:
-        # - Handle file uploads/downloads in workflows
-        # - Use custom community nodes
-        # - Process binary data (images, PDFs, etc.)
-        #
-        # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
-        # Quick setup (5 min):
-        #   1. doctl spaces create n8n-storage-ams3 --region ams3
-        #   2. doctl spaces keys create n8n-storage-key
-        #   3. Uncomment and configure variables below
-        #
-        # Cost: $5/month for 250GB + $0.02/GB thereafter
-        #
-        # - key: N8N_DEFAULT_BINARY_DATA_MODE
-        #   value: filesystem
-        # - key: AWS_ACCESS_KEY_ID
-        #   value: YOUR_SPACES_ACCESS_KEY
-        #   scope: RUN_TIME
-        #   type: SECRET
-        # - key: AWS_SECRET_ACCESS_KEY
-        #   value: YOUR_SPACES_SECRET_KEY
-        #   scope: RUN_TIME
-        #   type: SECRET
-        # - key: AWS_S3_BUCKET_NAME
-        #   value: n8n-storage-ams3
-        # - key: AWS_S3_ENDPOINT
-        #   value: https://ams3.digitaloceanspaces.com
-        # - key: AWS_S3_FORCE_PATH_STYLE
-        #   value: "true"
+      # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
+      # App Platform uses ephemeral storage - files are lost on container restart
+      #
+      # REQUIRED for production if you:
+      # - Handle file uploads/downloads in workflows
+      # - Use custom community nodes
+      # - Process binary data (images, PDFs, etc.)
+      #
+      # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
+      # Quick setup (5 min):
+      #   1. doctl spaces create n8n-storage-ams3 --region ams3
+      #   2. doctl spaces keys create n8n-storage-key
+      #   3. Uncomment and configure variables below
+      #
+      # Cost: $5/month for 250GB + $0.02/GB thereafter
+      #
+      # - key: N8N_DEFAULT_BINARY_DATA_MODE
+      #   value: filesystem
+      # - key: AWS_ACCESS_KEY_ID
+      #   value: YOUR_SPACES_ACCESS_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_SECRET_ACCESS_KEY
+      #   value: YOUR_SPACES_SECRET_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_S3_BUCKET_NAME
+      #   value: n8n-storage-ams3
+      # - key: AWS_S3_ENDPOINT
+      #   value: https://ams3.digitaloceanspaces.com
+      # - key: AWS_S3_FORCE_PATH_STYLE
+      #   value: "true"
 
-  databases:
-    - name: n8n-db
-      engine: PG
-      version: "17"
-      production: false
-      cluster_name: n8n-db
+databases:
+  - name: n8n-db
+    engine: PG
+    version: "17"
+    production: false
+    cluster_name: n8n-db

@@ -5,107 +5,106 @@
 #
 # Deploy with: doctl apps create --spec .do/examples/with-runners.yaml
 
-spec:
-  name: n8n-with-runners
-  region: ams
+name: n8n-with-runners
+region: ams
 
-  # Main Service - UI, API, Webhooks, Workflow Execution
-  services:
-    - name: n8n
-      image:
-        registry_type: GHCR
-        registry: ghcr.io
-        repository: n8n-io/n8n
-        tag: "1.116.2"
-      http_port: 5678
-      instance_count: 1
-      instance_size_slug: apps-s-1vcpu-1gb
+# Main Service - UI, API, Webhooks, Workflow Execution
+services:
+  - name: n8n
+    image:
+      registry_type: GHCR
+      registry: ghcr.io
+      repository: n8n-io/n8n
+      tag: "1.116.2"
+    http_port: 5678
+    instance_count: 1
+    instance_size_slug: apps-s-1vcpu-1gb
 
-      health_check:
-        http_path: /healthz
-        initial_delay_seconds: 60
-        period_seconds: 10
-        timeout_seconds: 3
-        success_threshold: 1
-        failure_threshold: 3
+    health_check:
+      http_path: /healthz
+      initial_delay_seconds: 60
+      period_seconds: 10
+      timeout_seconds: 3
+      success_threshold: 1
+      failure_threshold: 3
 
-      envs:
-        # Database Configuration
-        - key: DB_TYPE
-          value: postgresdb
-        - key: DB_POSTGRESDB_HOST
-          value: ${n8n-db.HOSTNAME}
-        - key: DB_POSTGRESDB_PORT
-          value: ${n8n-db.PORT}
-        - key: DB_POSTGRESDB_DATABASE
-          value: ${n8n-db.DATABASE}
-        - key: DB_POSTGRESDB_USER
-          value: ${n8n-db.USERNAME}
-        - key: DB_POSTGRESDB_PASSWORD
-          value: ${n8n-db.PASSWORD}
+    envs:
+      # Database Configuration
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        value: ${n8n-db.HOSTNAME}
+      - key: DB_POSTGRESDB_PORT
+        value: ${n8n-db.PORT}
+      - key: DB_POSTGRESDB_DATABASE
+        value: ${n8n-db.DATABASE}
+      - key: DB_POSTGRESDB_USER
+        value: ${n8n-db.USERNAME}
+      - key: DB_POSTGRESDB_PASSWORD
+        value: ${n8n-db.PASSWORD}
 
-        # n8n Configuration
-        - key: N8N_HOST
-          value: ${APP_URL}
-        - key: N8N_PROTOCOL
-          value: https
-        - key: N8N_PORT
-          value: "5678"
-        - key: WEBHOOK_URL
-          value: https://${APP_URL}/
+      # n8n Configuration
+      - key: N8N_HOST
+        value: ${APP_URL}
+      - key: N8N_PROTOCOL
+        value: https
+      - key: N8N_PORT
+        value: "5678"
+      - key: WEBHOOK_URL
+        value: https://${APP_URL}/
 
-        # Security - CHANGE THIS!
-        - key: N8N_ENCRYPTION_KEY
-          value: CHANGE_THIS_TO_RANDOM_STRING
-          scope: RUN_TIME
-          type: SECRET
+      # Security - CHANGE THIS!
+      - key: N8N_ENCRYPTION_KEY
+        value: CHANGE_THIS_TO_RANDOM_STRING
+        scope: RUN_TIME
+        type: SECRET
 
-        # Task Runner Configuration (ENABLED)
-        - key: N8N_RUNNERS_ENABLED
-          value: "true"
-        - key: N8N_RUNNERS_MODE
-          value: external
-        - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
-          value: 0.0.0.0
-        - key: N8N_RUNNERS_AUTH_TOKEN
-          value: CHANGE_THIS_RUNNER_TOKEN
-          scope: RUN_TIME
-          type: SECRET
+      # Task Runner Configuration (ENABLED)
+      - key: N8N_RUNNERS_ENABLED
+        value: "true"
+      - key: N8N_RUNNERS_MODE
+        value: external
+      - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+        value: 0.0.0.0
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: CHANGE_THIS_RUNNER_TOKEN
+        scope: RUN_TIME
+        type: SECRET
 
-        # Application Settings
-        - key: N8N_USER_FOLDER
-          value: /home/node/.n8n
-        - key: N8N_DIAGNOSTICS_ENABLED
-          value: "false"
-        - key: GENERIC_TIMEZONE
-          value: Europe/Amsterdam
-        - key: TZ
-          value: Europe/Amsterdam
+      # Application Settings
+      - key: N8N_USER_FOLDER
+        value: /home/node/.n8n
+      - key: N8N_DIAGNOSTICS_ENABLED
+        value: "false"
+      - key: GENERIC_TIMEZONE
+        value: Europe/Amsterdam
+      - key: TZ
+        value: Europe/Amsterdam
 
-  # Task Runners - Execute JavaScript/Python Code
-  workers:
-    - name: n8n-runner
-      image:
-        registry_type: GHCR
-        registry: ghcr.io
-        repository: n8n-io/runners
-        tag: "1.116.2"
-      instance_count: 1  # Scale based on Code node usage
-      instance_size_slug: apps-s-1vcpu-1gb
+# Task Runners - Execute JavaScript/Python Code
+workers:
+  - name: n8n-runner
+    image:
+      registry_type: GHCR
+      registry: ghcr.io
+      repository: n8n-io/runners
+      tag: "1.116.2"
+    instance_count: 1  # Scale based on Code node usage
+    instance_size_slug: apps-s-1vcpu-1gb
 
-      envs:
-        # Connect to main n8n instance
-        - key: N8N_RUNNERS_TASK_BROKER_URI
-          value: http://n8n:5679
-        - key: N8N_RUNNERS_AUTH_TOKEN
-          value: CHANGE_THIS_RUNNER_TOKEN
-          scope: RUN_TIME
-          type: SECRET
+    envs:
+      # Connect to main n8n instance
+      - key: N8N_RUNNERS_TASK_BROKER_URI
+        value: http://n8n:5679
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: CHANGE_THIS_RUNNER_TOKEN
+        scope: RUN_TIME
+        type: SECRET
 
-  # Database
-  databases:
-    - name: n8n-db
-      engine: PG
-      version: "17"
-      production: false
-      cluster_name: n8n-db
+# Database
+databases:
+  - name: n8n-db
+    engine: PG
+    version: "17"
+    production: false
+    cluster_name: n8n-db
