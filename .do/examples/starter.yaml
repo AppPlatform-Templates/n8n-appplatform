@@ -61,7 +61,7 @@ services:
       #
       # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
       # Quick setup (5 min):
-      #   1. Create Space via DigitalOcean Control Panel
+      #   1. Create Spaces bucket via DigitalOcean Control Panel
       #   2. doctl spaces keys create n8n-storage-key
       #   3. Uncomment and configure variables below
       #
