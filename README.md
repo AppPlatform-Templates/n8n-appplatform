@@ -128,7 +128,7 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 
 ## What's Included
 
-- n8n v1.122.2 (latest stable)
+- n8n v1.116.2 (latest stable)
 - PostgreSQL 17 database (persistent storage)
 - SSL/TLS encryption
 - Automated backups

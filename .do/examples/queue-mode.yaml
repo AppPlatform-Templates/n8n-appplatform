@@ -15,7 +15,7 @@ services:
       registry_type: GHCR
       registry: ghcr.io
       repository: n8n-io/n8n
-      tag: "1.122.2"
+      tag: "1.116.2"
     http_port: 5678
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
@@ -105,7 +105,7 @@ workers:
       registry_type: GHCR
       registry: ghcr.io
       repository: n8n-io/n8n
-      tag: "1.122.2"
+      tag: "1.116.2"
     instance_count: 1  # Scale this: 1-10 based on load
     instance_size_slug: apps-s-1vcpu-1gb
 
