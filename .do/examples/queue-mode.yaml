@@ -52,7 +52,7 @@ services:
       - key: N8N_PROTOCOL
         value: https
       - key: WEBHOOK_URL
-        value: https://${APP_URL}/
+        value: ${APP_URL}
 
       # Security - CHANGE THESE!
       - key: N8N_ENCRYPTION_KEY
