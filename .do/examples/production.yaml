@@ -238,5 +238,6 @@ databases:
     engine: REDIS
     version: "7"
     production: true  # Production mode for HA
+    cluster_name: n8n-redis
     # Consider larger size for high throughput:
     # size: db-s-1vcpu-2gb

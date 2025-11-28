@@ -1034,6 +1034,7 @@ databases:
     engine: PG
     version: "17"
     production: true  # Enables HA
+    cluster_name: n8n-postgres
 ```
 
 ## Complete Production Checklist
