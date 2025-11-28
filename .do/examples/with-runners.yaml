@@ -35,12 +35,7 @@ services:
         value: ${n8n-postgres.DATABASE_URL}
 
       # n8n Configuration
-      - key: N8N_HOST
-        value: ${APP_URL}
-      - key: N8N_PROTOCOL
-        value: https
-      - key: N8N_PORT
-        value: "5678"
+      # WEBHOOK_URL overrides N8N_HOST + N8N_PROTOCOL for external URLs
       - key: WEBHOOK_URL
         value: ${APP_URL}
 
