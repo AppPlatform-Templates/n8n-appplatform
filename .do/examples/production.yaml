@@ -59,6 +59,9 @@ services:
       # WEBHOOK_URL overrides N8N_HOST + N8N_PROTOCOL for external URLs
       - key: WEBHOOK_URL
         value: ${APP_URL}/
+      # App Platform runs behind a reverse proxy
+      - key: N8N_PROXY_HOPS
+        value: "1"
 
       # Security - CHANGE THESE!
       - key: N8N_ENCRYPTION_KEY
