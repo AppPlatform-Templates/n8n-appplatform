@@ -30,9 +30,24 @@ services:
 
     envs:
       # Database Configuration (PostgreSQL)
-      # Use DATABASE_URL which includes SSL configuration automatically
-      - key: DATABASE_URL
-        value: ${n8n-postgres.DATABASE_URL}
+      # Force PostgreSQL for ALL operations (prevents SQLite fallback)
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        value: ${n8n-postgres.HOSTNAME}
+      - key: DB_POSTGRESDB_PORT
+        value: ${n8n-postgres.PORT}
+      - key: DB_POSTGRESDB_DATABASE
+        value: ${n8n-postgres.DATABASE}
+      - key: DB_POSTGRESDB_USER
+        value: ${n8n-postgres.USERNAME}
+      - key: DB_POSTGRESDB_PASSWORD
+        value: ${n8n-postgres.PASSWORD}
+      # SSL required for DigitalOcean managed databases
+      - key: DB_POSTGRESDB_SSL_ENABLED
+        value: "true"
+      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+        value: "false"
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -114,9 +129,24 @@ workers:
 
     envs:
       # Database Configuration (PostgreSQL)
-      # Use DATABASE_URL which includes SSL configuration automatically
-      - key: DATABASE_URL
-        value: ${n8n-postgres.DATABASE_URL}
+      # Force PostgreSQL for ALL operations (must match main)
+      - key: DB_TYPE
+        value: postgresdb
+      - key: DB_POSTGRESDB_HOST
+        value: ${n8n-postgres.HOSTNAME}
+      - key: DB_POSTGRESDB_PORT
+        value: ${n8n-postgres.PORT}
+      - key: DB_POSTGRESDB_DATABASE
+        value: ${n8n-postgres.DATABASE}
+      - key: DB_POSTGRESDB_USER
+        value: ${n8n-postgres.USERNAME}
+      - key: DB_POSTGRESDB_PASSWORD
+        value: ${n8n-postgres.PASSWORD}
+      # SSL required for DigitalOcean managed databases
+      - key: DB_POSTGRESDB_SSL_ENABLED
+        value: "true"
+      - key: DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED
+        value: "false"
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
