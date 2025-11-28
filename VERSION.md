@@ -2,7 +2,7 @@
 
 ## Current Version
 
-This repository is based on **n8n v1.116.2** (latest stable release as of deployment).
+This repository is based on **n8n v1.122.2** (latest stable release as of deployment).
 
 ## Version Source
 
