@@ -30,7 +30,7 @@ spec:
         # n8n Configuration
         # WEBHOOK_URL overrides N8N_HOST + N8N_PROTOCOL for external URLs
         - key: WEBHOOK_URL
-          value: ${APP_URL}
+          value: ${APP_URL}/
 
         # Security - Pre-configured for easy starter deployment
         # For production, rotate this key using: openssl rand -base64 32
