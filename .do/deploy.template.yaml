@@ -8,7 +8,7 @@ spec:
         registry_type: GHCR
         registry: ghcr.io
         repository: n8n-io/n8n
-        tag: "latest"  # Use "latest" for newest features, or pin to specific version (e.g., "1.116.2") for stability
+        tag: "latest"  # Use "latest" for newest features, or pin to specific version (e.g., "1.122.2") for stability
       http_port: 5678
       instance_count: 1
       instance_size_slug: apps-s-1vcpu-1gb
