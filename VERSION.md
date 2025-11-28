@@ -4,8 +4,6 @@
 
 This repository is based on **n8n v1.116.2** (latest stable release as of deployment).
 
-**Note:** Version 1.122.2 has known issues with queue mode and scheduled triggers. Using v1.116.2 for stability.
-
 ## Version Source
 
 The version was determined by checking the GitHub releases API:
