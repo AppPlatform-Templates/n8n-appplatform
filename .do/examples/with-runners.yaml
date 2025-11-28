@@ -59,7 +59,7 @@ services:
       # Pre-configured runner token for easy deployment
       # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: rJu81ykr0Eio3HNtB4+uhEDTj/SVNXNaXHgYhR5+p6g=
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
@@ -118,7 +118,7 @@ workers:
       # MUST MATCH MAIN SERVICE TOKEN!
       # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: rJu81ykr0Eio3HNtB4+uhEDTj/SVNXNaXHgYhR5+p6g=
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
