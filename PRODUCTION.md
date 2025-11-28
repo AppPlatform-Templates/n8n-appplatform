@@ -1030,7 +1030,7 @@ envs:
 For production:
 ```yaml
 databases:
-  - name: n8n-db
+  - name: n8n-postgres
     engine: PG
     version: "17"
     production: true  # Enables HA

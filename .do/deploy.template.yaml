@@ -25,7 +25,7 @@ spec:
         # Database Configuration (PostgreSQL)
         # Use DATABASE_URL which includes SSL configuration automatically
         - key: DATABASE_URL
-          value: ${n8n-db.DATABASE_URL}
+          value: ${n8n-postgres.DATABASE_URL}
 
         # n8n Configuration
         # WEBHOOK_URL overrides N8N_HOST + N8N_PROTOCOL for external URLs
@@ -80,8 +80,8 @@ spec:
         #   value: "true"
 
   databases:
-    - name: n8n-db
+    - name: n8n-postgres
       engine: PG
       version: "17"
       production: false
-      cluster_name: n8n-db
+      cluster_name: n8n-postgres

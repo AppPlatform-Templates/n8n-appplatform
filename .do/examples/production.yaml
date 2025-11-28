@@ -31,19 +31,10 @@ services:
       failure_threshold: 3
 
     envs:
-      # Database Configuration
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        value: ${n8n-db.HOSTNAME}
-      - key: DB_POSTGRESDB_PORT
-        value: ${n8n-db.PORT}
-      - key: DB_POSTGRESDB_DATABASE
-        value: ${n8n-db.DATABASE}
-      - key: DB_POSTGRESDB_USER
-        value: ${n8n-db.USERNAME}
-      - key: DB_POSTGRESDB_PASSWORD
-        value: ${n8n-db.PASSWORD}
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-postgres.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -142,19 +133,10 @@ workers:
     #       percent: 80
 
     envs:
-      # Database Configuration
-      - key: DB_TYPE
-        value: postgresdb
-      - key: DB_POSTGRESDB_HOST
-        value: ${n8n-db.HOSTNAME}
-      - key: DB_POSTGRESDB_PORT
-        value: ${n8n-db.PORT}
-      - key: DB_POSTGRESDB_DATABASE
-        value: ${n8n-db.DATABASE}
-      - key: DB_POSTGRESDB_USER
-        value: ${n8n-db.USERNAME}
-      - key: DB_POSTGRESDB_PASSWORD
-        value: ${n8n-db.PASSWORD}
+      # Database Configuration (PostgreSQL)
+      # Use DATABASE_URL which includes SSL configuration automatically
+      - key: DATABASE_URL
+        value: ${n8n-postgres.DATABASE_URL}
 
       # Queue Mode Configuration
       - key: EXECUTIONS_MODE
@@ -244,7 +226,7 @@ workers:
 
 # Databases
 databases:
-  - name: n8n-db
+  - name: n8n-postgres
     engine: PG
     version: "17"
     production: true  # Production mode for HA
