@@ -54,9 +54,10 @@ services:
       - key: N8N_PROXY_HOPS
         value: "1"
 
-      # Security - CHANGE THESE!
+      # Security - Pre-configured for easy deployment
+      # For production, rotate this key using: openssl rand -base64 32
       - key: N8N_ENCRYPTION_KEY
-        value: CHANGE_THIS_TO_RANDOM_STRING
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
@@ -135,9 +136,10 @@ workers:
       - key: N8N_CONCURRENCY_PRODUCTION_LIMIT
         value: "10"
 
-      # Security - SAME AS MAIN!
+      # Security - MUST MATCH MAIN SERVICE!
+      # For production, rotate this key using: openssl rand -base64 32
       - key: N8N_ENCRYPTION_KEY
-        value: CHANGE_THIS_TO_RANDOM_STRING
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 

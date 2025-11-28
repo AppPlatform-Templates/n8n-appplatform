@@ -42,9 +42,10 @@ services:
       - key: N8N_PROXY_HOPS
         value: "1"
 
-      # Security - CHANGE THIS!
+      # Security - Pre-configured for easy deployment
+      # For production, rotate this key using: openssl rand -base64 32
       - key: N8N_ENCRYPTION_KEY
-        value: CHANGE_THIS_TO_RANDOM_STRING
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
@@ -55,8 +56,10 @@ services:
         value: external
       - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
         value: 0.0.0.0
+      # Pre-configured runner token for easy deployment
+      # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: CHANGE_THIS_RUNNER_TOKEN
+        value: rJu81ykr0Eio3HNtB4+uhEDTj/SVNXNaXHgYhR5+p6g=
         scope: RUN_TIME
         type: SECRET
 
@@ -112,8 +115,10 @@ workers:
       # Connect to main n8n instance
       - key: N8N_RUNNERS_TASK_BROKER_URI
         value: http://n8n:5679
+      # MUST MATCH MAIN SERVICE TOKEN!
+      # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: CHANGE_THIS_RUNNER_TOKEN
+        value: rJu81ykr0Eio3HNtB4+uhEDTj/SVNXNaXHgYhR5+p6g=
         scope: RUN_TIME
         type: SECRET
 
