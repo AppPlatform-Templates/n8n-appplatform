@@ -99,8 +99,8 @@ services:
 
       # ⚠️ CRITICAL: Persistent File Storage (Spaces)
       # REQUIRED for production - App Platform uses ephemeral storage!
-      # Setup: doctl spaces create n8n-storage-ams3 --region ams3
-      #        doctl spaces keys create n8n-storage-key
+      # Setup: 1. Create Space via DigitalOcean Control Panel
+      #        2. doctl spaces keys create n8n-storage-key
       # See PRODUCTION.md#persistent-storage-critical-for-production
       - key: N8N_DEFAULT_BINARY_DATA_MODE
         value: filesystem

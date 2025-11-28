@@ -91,15 +91,9 @@ App Platform uses **ephemeral storage** - files are lost on container restart. F
 - Processing binary data (images, PDFs, etc.)
 
 **Quick Setup** (5 minutes):
-```bash
-# 1. Create Space
-doctl spaces create n8n-storage-ams3 --region ams3
-
-# 2. Create access keys
-doctl spaces keys create n8n-storage-key
-
-# 3. Add to your app spec - see PRODUCTION.md for full config
-```
+1. Create a Space via [DigitalOcean Control Panel](https://cloud.digitalocean.com/spaces)
+2. Generate access keys: `doctl spaces keys create n8n-storage-key`
+3. Add credentials to your app spec - see PRODUCTION.md for full config
 
 📖 **Full guide**: [Persistent Storage Setup](PRODUCTION.md#-persistent-storage-critical-for-production)
 

@@ -56,7 +56,7 @@ spec:
         #
         # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
         # Quick setup (5 min):
-        #   1. doctl spaces create n8n-storage-ams3 --region ams3
+        #   1. Create Space via DigitalOcean Control Panel
         #   2. doctl spaces keys create n8n-storage-key
         #   3. Uncomment and configure variables below
         #

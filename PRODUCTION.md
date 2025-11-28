@@ -140,13 +140,14 @@ No configuration needed!
 
 #### 1. Create a Space
 
-```bash
-# Create Space in your region
-doctl spaces create n8n-storage-ams3 --region ams3
+Create a Space manually via the DigitalOcean Control Panel:
 
-# Or use NYC1, SFO3, SGP1, etc. - match your app region
-doctl spaces create n8n-storage-nyc3 --region nyc3
-```
+1. Go to [Spaces](https://cloud.digitalocean.com/spaces) in your DigitalOcean account
+2. Click "Create a Space"
+3. Choose your region (match your app's region: `ams3`, `nyc3`, `sfo3`, `sgp1`, etc.)
+4. Name your Space: `n8n-storage-ams3` (or use any name you prefer)
+5. Choose file listing: **Restricted** (recommended for security)
+6. Click "Create Space"
 
 #### 2. Generate Access Keys
 
