@@ -1,22 +1,50 @@
 # Production Setup
 
-Full production deployment with queue mode, workers, and task runners.
+Production deployment with queue mode and task runners for scalable workflow execution.
 
 ## Architecture
 
 ```
-Main → Redis → Workers → Runners
-  ↓              ↓          ↓
- PostgreSQL   Execute   Code Execution
+                    ┌─────────────┐
+                    │   Main      │
+                    │ UI/API/     │
+                    │ Webhooks    │◄──── Runners (sandboxed code)
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │    Redis    │
+                    │  Job Queue  │
+                    └──────┬──────┐
+                           │
+                    ┌──────▼──────┐
+                    │   Workers   │
+                    │  (Execute   │
+                    │  workflows) │
+                    └──────┬──────┘
+                           │
+                    ┌──────▼──────┐
+                    │ PostgreSQL  │
+                    └─────────────┘
 ```
 
 ## Components
 
-- Main: UI/API/Broker
-- Workers: 2+ instances
-- Runners: 2+ instances
-- Redis: Job queue
-- PostgreSQL: Data (HA enabled)
+- **Main**: UI/API/Webhooks with task runner broker (with runners)
+- **Workers**: Execute queued workflows (code runs in-process)
+- **Runners**: Connect to main service for manual execution sandboxing
+- **Redis**: Job queue coordination
+- **PostgreSQL**: Data storage (HA enabled)
+
+## Task Runner Architecture
+
+Task runners are enabled on the main service for manual executions:
+- ✅ **Manual executions** (via UI/API) use external sandboxed runners
+- ✅ **Queued executions** (scheduled/triggered) execute code directly in worker process
+
+This architecture provides:
+- Secure sandboxing for development and testing via UI
+- High-performance execution for production queued workflows
+- Horizontal scaling through worker instances
 
 ## Cost
 
@@ -41,8 +69,9 @@ doctl apps create --spec .do/examples/production.yaml
 ### Deployment
 - [ ] Deploy with production spec
 - [ ] Verify all components healthy
-- [ ] Test workflow execution
-- [ ] Test Code nodes
+- [ ] Test workflow execution (both manual and scheduled)
+- [ ] Test Code nodes via UI (should use runners)
+- [ ] Test Code nodes via scheduled trigger (runs in worker)
 
 ### Post-Deployment
 - [ ] Enable database trusted sources
@@ -69,16 +98,18 @@ workers:
 ## Monitoring
 
 **Critical Metrics:**
-- Queue depth (Redis)
-- Worker CPU/Memory
-- Runner CPU/Memory
-- Database connections
-- Execution times
+- Queue depth (Redis) - ensure workers keep up
+- Worker CPU/Memory - watch for code execution overhead
+- Runner CPU/Memory - monitor sandboxed execution load
+- Main service CPU/Memory - UI/API/webhook handling
+- Database connections - prevent connection exhaustion
+- Execution times - identify slow workflows
 
 **App Platform Insights:**
-- Set up CPU/Memory alerts
-- Monitor request rates
-- Track error rates
+- Set up CPU/Memory alerts (especially for workers)
+- Monitor request rates on main service
+- Track error rates across all components
+- Watch for task timeout errors in logs
 
 ## Security
 
