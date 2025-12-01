@@ -1,7 +1,12 @@
 # n8n Production Deployment
-# Queue mode + Workers + Task Runners + Redis
-# For 1000+ workflows/day, code-heavy, enterprise scale
+# Queue mode + Workers + Redis (Task Runners on main only)
+# For 1000+ workflows/day, enterprise scale
 # Cost: ~$66/month base (scales with workers/runners)
+#
+# Architecture:
+# - Main: UI/API/Webhooks with external runners (sandboxed code execution)
+# - Workers: Execute queued workflows (code runs in-process)
+# - Runners: Connect to main service for manual execution sandboxing
 #
 # Deploy with: doctl apps create --spec .do/examples/production.yaml
 # Auto-scale: Requires dedicated CPU instances (apps-d-*)
@@ -18,9 +23,17 @@ services:
       repository: n8n-io/n8n
       tag: "1.122.2"
     http_port: 5678
-    instance_count: 1
-    instance_size_slug: apps-s-1vcpu-1gb
-    # For auto-scaling: use apps-d-1vcpu-1gb and add autoscaling config
+    internal_ports:
+      - 5679  # Task Runner broker port
+    # instance_count: 1  # Not needed with autoscaling
+    instance_size_slug: apps-d-1vcpu-1gb
+
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 2
+      metrics:
+        cpu:
+          percent: 80
 
     health_check:
       http_path: /healthz
@@ -71,9 +84,10 @@ services:
       - key: N8N_PROXY_HOPS
         value: "1"
 
-      # Security - CHANGE THESE!
+      # Security - Pre-configured for easy deployment
+      # For production, rotate this key using: openssl rand -base64 32
       - key: N8N_ENCRYPTION_KEY
-        value: CHANGE_THIS_TO_RANDOM_STRING
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
@@ -84,48 +98,49 @@ services:
         value: external
       - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
         value: 0.0.0.0
+      # Pre-configured runner token for easy deployment
+      # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: CHANGE_THIS_RUNNER_TOKEN
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
-      # Application Settings
-      - key: N8N_USER_FOLDER
-        value: /home/node/.n8n
-      - key: N8N_DIAGNOSTICS_ENABLED
-        value: "false"
+      # Timezone
       - key: GENERIC_TIMEZONE
         value: Europe/Amsterdam
-      - key: TZ
-        value: Europe/Amsterdam
 
-      # Monitoring (optional)
-      - key: N8N_METRICS
-        value: "true"
-      - key: N8N_LOG_LEVEL
-        value: info
-
-      # ⚠️ CRITICAL: Persistent File Storage (Spaces)
-      # REQUIRED for production - App Platform uses ephemeral storage!
-      # Setup: 1. Create Spaces bucket via DigitalOcean Control Panel
-      #        2. doctl spaces keys create n8n-storage-key
-      # See PRODUCTION.md#persistent-storage-critical-for-production
-      - key: N8N_DEFAULT_BINARY_DATA_MODE
-        value: filesystem
-      - key: AWS_ACCESS_KEY_ID
-        value: YOUR_SPACES_ACCESS_KEY
-        scope: RUN_TIME
-        type: SECRET
-      - key: AWS_SECRET_ACCESS_KEY
-        value: YOUR_SPACES_SECRET_KEY
-        scope: RUN_TIME
-        type: SECRET
-      - key: AWS_S3_BUCKET_NAME
-        value: n8n-storage-ams3
-      - key: AWS_S3_ENDPOINT
-        value: https://ams3.digitaloceanspaces.com
-      - key: AWS_S3_FORCE_PATH_STYLE
-        value: "true"
+      # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
+      # App Platform uses ephemeral storage - files are lost on container restart
+      #
+      # REQUIRED for production if you:
+      # - Handle file uploads/downloads in workflows
+      # - Use custom community nodes
+      # - Process binary data (images, PDFs, etc.)
+      #
+      # Setup: See PRODUCTION.md#persistent-storage-critical-for-production
+      # Quick setup (5 min):
+      #   1. Create Spaces bucket via DigitalOcean Control Panel
+      #   2. doctl spaces keys create n8n-storage-key
+      #   3. Uncomment and configure variables below
+      #
+      # Cost: $5/month for 250GB + $0.02/GB thereafter
+      #
+      # - key: N8N_DEFAULT_BINARY_DATA_MODE
+      #   value: filesystem
+      # - key: AWS_ACCESS_KEY_ID
+      #   value: YOUR_SPACES_ACCESS_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_SECRET_ACCESS_KEY
+      #   value: YOUR_SPACES_SECRET_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_S3_BUCKET_NAME
+      #   value: n8n-storage-ams3
+      # - key: AWS_S3_ENDPOINT
+      #   value: https://ams3.digitaloceanspaces.com
+      # - key: AWS_S3_FORCE_PATH_STYLE
+      #   value: "true"
 
 # Workers - Execute Workflows from Queue
 workers:
@@ -135,19 +150,17 @@ workers:
       registry: ghcr.io
       repository: n8n-io/n8n
       tag: "1.122.2"
-    instance_count: 2  # Start with 2, scale to 10+
-    instance_size_slug: apps-s-1vcpu-1gb
-    # For auto-scaling: use apps-d-1vcpu-1gb and configure below
+    # instance_count: 1  # Not needed with autoscaling
+    instance_size_slug: apps-d-1vcpu-1gb
 
     run_command: n8n worker
 
-    # Example autoscaling config (requires dedicated CPU)
-    # autoscaling:
-    #   min_instance_count: 2
-    #   max_instance_count: 10
-    #   metrics:
-    #     cpu:
-    #       percent: 80
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 2
+      metrics:
+        cpu:
+          percent: 80
 
     envs:
       # Database Configuration (PostgreSQL)
@@ -188,73 +201,63 @@ workers:
       - key: N8N_CONCURRENCY_PRODUCTION_LIMIT
         value: "10"
 
-      # Security - SAME AS MAIN!
+      # Security - MUST MATCH MAIN SERVICE!
+      # For production, rotate this key using: openssl rand -base64 32
       - key: N8N_ENCRYPTION_KEY
-        value: CHANGE_THIS_TO_RANDOM_STRING
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
-      # Task Runner Configuration
+      # Task Runner Configuration (disabled on workers)
+      # Workers execute code in-process without sandboxing
+      # Main service uses external runners for manual executions
       - key: N8N_RUNNERS_ENABLED
-        value: "true"
-      - key: N8N_RUNNERS_MODE
-        value: external
-      - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
-        value: 0.0.0.0
-      - key: N8N_RUNNERS_AUTH_TOKEN
-        value: CHANGE_THIS_RUNNER_TOKEN
-        scope: RUN_TIME
-        type: SECRET
-
-      # Application Settings
-      - key: N8N_USER_FOLDER
-        value: /home/node/.n8n
-      - key: N8N_DIAGNOSTICS_ENABLED
         value: "false"
 
       # Persistent File Storage (SAME AS MAIN!)
-      - key: N8N_DEFAULT_BINARY_DATA_MODE
-        value: filesystem
-      - key: AWS_ACCESS_KEY_ID
-        value: YOUR_SPACES_ACCESS_KEY
-        scope: RUN_TIME
-        type: SECRET
-      - key: AWS_SECRET_ACCESS_KEY
-        value: YOUR_SPACES_SECRET_KEY
-        scope: RUN_TIME
-        type: SECRET
-      - key: AWS_S3_BUCKET_NAME
-        value: n8n-storage-ams3
-      - key: AWS_S3_ENDPOINT
-        value: https://ams3.digitaloceanspaces.com
-      - key: AWS_S3_FORCE_PATH_STYLE
-        value: "true"
+      # Uncomment if using Spaces (must match main service configuration)
+      # - key: N8N_DEFAULT_BINARY_DATA_MODE
+      #   value: filesystem
+      # - key: AWS_ACCESS_KEY_ID
+      #   value: YOUR_SPACES_ACCESS_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_SECRET_ACCESS_KEY
+      #   value: YOUR_SPACES_SECRET_KEY
+      #   scope: RUN_TIME
+      #   type: SECRET
+      # - key: AWS_S3_BUCKET_NAME
+      #   value: n8n-storage-ams3
+      # - key: AWS_S3_ENDPOINT
+      #   value: https://ams3.digitaloceanspaces.com
+      # - key: AWS_S3_FORCE_PATH_STYLE
+      #   value: "true"
 
-  # Task Runners - Execute JavaScript/Python Code
+  # Task Runners - Execute JavaScript/Python Code (all connect to main's broker)
   - name: n8n-runner
     image:
       registry_type: GHCR
       registry: ghcr.io
       repository: n8n-io/runners
       tag: "1.122.2"
-    instance_count: 2  # Match or exceed worker count
-    instance_size_slug: apps-s-1vcpu-1gb
-    # For auto-scaling: use apps-d-1vcpu-1gb
+    # instance_count: 2  # Not needed with autoscaling
+    instance_size_slug: apps-d-1vcpu-1gb
 
-    # Example autoscaling config (requires dedicated CPU)
-    # autoscaling:
-    #   min_instance_count: 2
-    #   max_instance_count: 10
-    #   metrics:
-    #     cpu:
-    #       percent: 80
+    autoscaling:
+      min_instance_count: 2
+      max_instance_count: 4
+      metrics:
+        cpu:
+          percent: 80
 
     envs:
       # Connect to main service's runner broker
       - key: N8N_RUNNERS_TASK_BROKER_URI
         value: http://n8n-main:5679
+      # MUST MATCH MAIN SERVICE TOKEN!
+      # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
-        value: CHANGE_THIS_RUNNER_TOKEN
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
         scope: RUN_TIME
         type: SECRET
 
@@ -265,13 +268,9 @@ databases:
     version: "17"
     production: true  # Production mode for HA
     cluster_name: n8n-postgres
-    # Consider larger size for production:
-    # size: db-s-2vcpu-4gb
 
   - name: n8n-redis
     engine: VALKEY
     version: "8"
     production: true  # Production mode for HA
     cluster_name: n8n-redis
-    # Consider larger size for high throughput:
-    # size: db-s-1vcpu-2gb
