@@ -942,20 +942,25 @@ doctl apps update YOUR_APP_ID --spec <spec-file>
 **In Production Mode on App Platform:**
 
 ```
-Manual Execution (UI) hits Code node
+Any Execution hits Code node
         ↓
-Main Service's Runner Broker (port 5679)
+Service's Runner Broker (port 5679)
+  - Main service for manual/webhook executions
+  - Worker service for queued executions
         ↓
 Runner Pool picks up task
         ↓
 Executes JavaScript/Python in sandbox
         ↓
-Returns result to Main
+Returns result to Service
         ↓
-Main completes workflow
+Service completes workflow
 ```
 
-**Note:** Queued executions (scheduled/triggered) run code in-process on workers without runners for performance.
+**Architecture:**
+- Main service has its own runner pool (for manual/webhook executions)
+- Each worker service has its own runner pool (for queued executions)
+- All Code nodes execute in sandboxed runners
 
 ### When to Use Runners
 
@@ -968,21 +973,22 @@ Main completes workflow
 ❌ **Skip runners if:**
 - No Code nodes in workflows
 - Only using built-in nodes
-- Cost-sensitive (saves $12/month per runner)
+- Cost-sensitive (saves $12/month per runner pool)
 
 ### Scaling Runners
 
 **In Production Mode:**
-Runners are for manual executions only (via UI/API testing). Scale based on concurrent manual testing needs, not worker count.
+Each worker service needs its own runner pool. Scale runner pools proportionally with worker services.
 
 **Recommended:**
-- Start with 2-4 runner instances
-- Scale based on developer/testing activity
-- Independent of worker count
+- 1-2 runners for main service
+- 1-2 runners per worker service
+- Scale as worker count increases
 
 **Monitor:**
-- Runner CPU usage during manual testing
-- Manual execution code execution times
+- Runner CPU usage across all pools
+- Code execution times for all workflows
+- Queue depth for runner tasks
 - Runner availability during peak development hours
 
 ## Redis Performance

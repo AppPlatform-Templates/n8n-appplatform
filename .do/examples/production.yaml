@@ -1,12 +1,13 @@
 # n8n Production Deployment
-# Queue mode + Workers + Redis (Task Runners on main only)
+# Queue mode + Worker Services + Task Runners
 # For 1000+ workflows/day, enterprise scale
 # Cost: ~$66/month base (scales with workers/runners)
 #
 # Architecture:
-# - Main: UI/API/Webhooks with external runners (sandboxed code execution)
-# - Workers: Execute queued workflows (code runs in-process)
-# - Runners: Connect to main service for manual execution sandboxing
+# - Main service: UI/API/Webhooks + task runner broker + runners
+# - Worker services: Execute queued workflows + task runner broker + runners
+#   (Configured as services with internal_ports to expose broker port 5679)
+# - All Code nodes execute in sandboxed runners (secure isolation)
 #
 # Deploy with: doctl apps create --spec .do/examples/production.yaml
 # Auto-scale: Requires dedicated CPU instances (apps-d-*)
@@ -142,14 +143,16 @@ services:
       # - key: AWS_S3_FORCE_PATH_STYLE
       #   value: "true"
 
-# Workers - Execute Workflows from Queue
-workers:
+  # Worker Service - Execute Workflows from Queue with Task Runners
+  # Internal-only service (no http_port, only internal_ports)
   - name: n8n-worker
     image:
       registry_type: GHCR
       registry: ghcr.io
       repository: n8n-io/n8n
       tag: "1.122.2"
+    internal_ports:
+      - 5679  # Task Runner broker port (for worker's own runners)
     # instance_count: 1  # Not needed with autoscaling
     instance_size_slug: apps-d-1vcpu-1gb
 
@@ -208,11 +211,19 @@ workers:
         scope: RUN_TIME
         type: SECRET
 
-      # Task Runner Configuration (disabled on workers)
-      # Workers execute code in-process without sandboxing
-      # Main service uses external runners for manual executions
+      # Task Runner Broker Configuration (worker acts as broker for its own runners)
       - key: N8N_RUNNERS_ENABLED
-        value: "false"
+        value: "true"
+      - key: N8N_RUNNERS_MODE
+        value: external
+      - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+        value: 0.0.0.0
+      # Pre-configured runner token for easy deployment
+      # For production, rotate this token using: openssl rand -base64 32
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
+        scope: RUN_TIME
+        type: SECRET
 
       # Persistent File Storage (SAME AS MAIN!)
       # Uncomment if using Spaces (must match main service configuration)
@@ -233,8 +244,10 @@ workers:
       # - key: AWS_S3_FORCE_PATH_STYLE
       #   value: "true"
 
-  # Task Runners - Execute JavaScript/Python Code (all connect to main's broker)
-  - name: n8n-runner
+# Task Runners - Execute JavaScript/Python Code
+workers:
+  # Runners for main service
+  - name: n8n-runner-main
     image:
       registry_type: GHCR
       registry: ghcr.io
@@ -244,8 +257,8 @@ workers:
     instance_size_slug: apps-d-1vcpu-1gb
 
     autoscaling:
-      min_instance_count: 2
-      max_instance_count: 4
+      min_instance_count: 1
+      max_instance_count: 2
       metrics:
         cpu:
           percent: 80
@@ -255,6 +268,34 @@ workers:
       - key: N8N_RUNNERS_TASK_BROKER_URI
         value: http://n8n-main:5679
       # MUST MATCH MAIN SERVICE TOKEN!
+      # For production, rotate this token using: openssl rand -base64 32
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=
+        scope: RUN_TIME
+        type: SECRET
+
+  # Runners for worker service
+  - name: n8n-runner-worker
+    image:
+      registry_type: GHCR
+      registry: ghcr.io
+      repository: n8n-io/runners
+      tag: "1.122.2"
+    # instance_count: 2  # Not needed with autoscaling
+    instance_size_slug: apps-d-1vcpu-1gb
+
+    autoscaling:
+      min_instance_count: 1
+      max_instance_count: 2
+      metrics:
+        cpu:
+          percent: 80
+
+    envs:
+      # Connect to worker service's runner broker
+      - key: N8N_RUNNERS_TASK_BROKER_URI
+        value: http://n8n-worker:5679
+      # MUST MATCH WORKER SERVICE TOKEN!
       # For production, rotate this token using: openssl rand -base64 32
       - key: N8N_RUNNERS_AUTH_TOKEN
         value: y4QNOf7cAf3yDytuXqCacwf16BF6StyxzeRq4VQlwPo=

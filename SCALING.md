@@ -167,7 +167,7 @@ doctl apps create --spec .do/examples/with-runners.yaml
 ```
 ┌──────────┐
 │   Main   │ ← UI + API
-│          │◄──── Runners (sandboxed for manual execution)
+│          │◄──── Runners (sandboxed code execution)
 └────┬─────┘
      │
 ┌────▼─────┐
@@ -176,25 +176,26 @@ doctl apps create --spec .do/examples/with-runners.yaml
 └────┬─────┘
      │
 ┌────▼──────┐
-│Worker Pool│ ← Execute workflows (code runs in-process)
+│Worker Pool│ ← Execute workflows
+│ (services)│◄──── Runners (sandboxed code execution)
 └───────────┘
 ```
 
 **What you get:**
-- Main instance (UI/API) with task runners
-- Multiple worker instances (horizontal scaling)
-- Runners for secure manual testing
+- Main service with task runners
+- Multiple worker services (configured as services, not workers)
+- Each worker has its own task runner pool
 - Redis coordination
-- Full scalability
+- Full scalability with sandboxed execution
 
 **How it works:**
 1. Main receives requests → adds to queue
-2. Workers pull jobs → execute workflows
-3. For **manual executions** (via UI):
-   - Main delegates Code nodes to runners (sandboxed)
-4. For **queued executions** (scheduled/triggered):
-   - Workers execute Code nodes in-process (high performance)
-5. Worker completes workflow → updates database
+2. Workers (services) pull jobs → execute workflows
+3. For **all executions** (manual and automated):
+   - Code nodes execute in sandboxed runners
+   - Main's runners handle manual executions
+   - Worker's runners handle queued executions
+4. Worker completes workflow → updates database
 
 **Best for:**
 - 1000+ workflows/day
@@ -204,8 +205,8 @@ doctl apps create --spec .do/examples/with-runners.yaml
 - Teams (20+ users)
 
 **Scaling:**
-- Workers: Scale 2-10+ instances (handles queued workflow execution)
-- Runners: Scale 2-4 instances (handles manual Code node execution)
+- Workers: Scale 2-10+ services (each pulls from queue)
+- Runners: Each worker service has its own runner pool (1-2 runners per worker)
 - Redis: Consider larger instance for high queue depth
 - PostgreSQL: Enable HA, add replicas for production
 
@@ -261,19 +262,21 @@ doctl apps create --spec .do/examples/production.yaml
 
 **Indicators:**
 - ✓ Executing > 1000 workflows/day
-- ✓ Need sandboxed code execution for testing
+- ✓ Need sandboxed code execution for all workflows
 - ✓ Workers hitting CPU limits
 - ✓ Need auto-scaling
 - ✓ Enterprise requirements
 
 **Migration:**
-1. Add runner component for main service
-2. Configure main as runner broker (internal_ports: [5679])
-3. Disable runners on workers (N8N_RUNNERS_ENABLED: false)
-4. Optionally switch to dedicated CPU for autoscaling
-5. Configure autoscaling on workers and runners
-6. Deploy updated spec
-7. Test: manual executions use runners, queued use in-process
+1. Convert workers from `workers:` to `services:` in spec
+2. Add `internal_ports: [5679]` to worker services (no http_port for internal-only)
+3. Enable runners on workers (N8N_RUNNERS_ENABLED: true, N8N_RUNNERS_MODE: external)
+4. Add runner pools for both main and worker services
+5. Configure main runners: N8N_RUNNERS_TASK_BROKER_URI: http://n8n-main:5679
+6. Configure worker runners: N8N_RUNNERS_TASK_BROKER_URI: http://n8n-worker:5679
+7. Optionally switch to dedicated CPU for autoscaling
+8. Deploy updated spec
+9. Test: all executions (manual and queued) use sandboxed runners
 
 ## Scaling Individual Components
 
@@ -303,24 +306,29 @@ doctl apps update YOUR_APP_ID --spec <updated-spec>
 
 ### Scaling Runners
 
-**Runners are for manual executions only in production mode:**
-- Start with 2-4 runner instances
-- Scale based on concurrent manual testing/debugging load
-- Independent of worker count (workers run code in-process)
+**Each worker service has its own runner pool:**
+- Start with 1-2 runners per worker service
+- Main service runners: Handle manual/webhook executions
+- Worker service runners: Handle queued workflow executions
+- Scale runners proportionally with workers
 
 **When to add runners:**
-- Multiple developers testing Code nodes simultaneously
-- Heavy manual workflow development/debugging
-- Frequent UI-based workflow testing
+- High code execution concurrency
+- Workers processing many Code node workflows
+- Performance degradation in code execution
+- Multiple concurrent workflow executions
 
 **Horizontal Scaling:**
 ```bash
 workers:
-  - name: n8n-runner
-    instance_count: 4  # Scale based on manual execution needs
+  - name: n8n-runner-main
+    instance_count: 2  # For main service
+
+  - name: n8n-runner-worker
+    instance_count: 2  # For worker service (scale with workers)
 ```
 
-**Note:** In production mode, queued workflows execute code in workers directly. Runners are only used for manual executions via UI.
+**Note:** In production mode, each worker service acts as a task runner broker with its own dedicated runner pool for sandboxed code execution.
 
 ### Vertical Scaling
 

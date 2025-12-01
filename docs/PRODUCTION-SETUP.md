@@ -18,7 +18,7 @@ Production deployment with queue mode and task runners for scalable workflow exe
                            │
                     ┌──────▼──────┐
                     │   Workers   │
-                    │  (Execute   │
+                    │  (Execute   │◄──── Runners (sandboxed code)
                     │  workflows) │
                     └──────┬──────┘
                            │
@@ -29,22 +29,23 @@ Production deployment with queue mode and task runners for scalable workflow exe
 
 ## Components
 
-- **Main**: UI/API/Webhooks with task runner broker (with runners)
-- **Workers**: Execute queued workflows (code runs in-process)
-- **Runners**: Connect to main service for manual execution sandboxing
+- **Main**: UI/API/Webhooks with task runner broker and runners
+- **Workers**: Execute queued workflows with task runner broker and runners (configured as services)
+- **Runners**: Separate pools for main and workers (sandboxed code execution)
 - **Redis**: Job queue coordination
 - **PostgreSQL**: Data storage (HA enabled)
 
 ## Task Runner Architecture
 
-Task runners are enabled on the main service for manual executions:
-- ✅ **Manual executions** (via UI/API) use external sandboxed runners
-- ✅ **Queued executions** (scheduled/triggered) execute code directly in worker process
+Each component (main and workers) acts as a task runner broker with its own runner pool:
+- ✅ **Main service**: Has runners for manual/webhook executions
+- ✅ **Worker services**: Have their own runners for queued workflow executions
+- ✅ **All Code nodes** execute in sandboxed runners (secure isolation)
 
 This architecture provides:
-- Secure sandboxing for development and testing via UI
-- High-performance execution for production queued workflows
-- Horizontal scaling through worker instances
+- Full sandboxing for all code execution (manual and automated)
+- Each worker has its own task runner pool (follows n8n's sidecar pattern)
+- Horizontal scaling through worker services with dedicated runners
 
 ## Cost
 
@@ -70,8 +71,8 @@ doctl apps create --spec .do/examples/production.yaml
 - [ ] Deploy with production spec
 - [ ] Verify all components healthy
 - [ ] Test workflow execution (both manual and scheduled)
-- [ ] Test Code nodes via UI (should use runners)
-- [ ] Test Code nodes via scheduled trigger (runs in worker)
+- [ ] Test Code nodes via UI (should use main's runners)
+- [ ] Test Code nodes via scheduled trigger (should use worker's runners)
 
 ### Post-Deployment
 - [ ] Enable database trusted sources
