@@ -17,6 +17,8 @@ services:
       repository: n8n-io/n8n
       tag: "1.122.2"
     http_port: 5678
+    internal_ports:
+      - 5679  # Task Runner broker port
     instance_count: 1
     instance_size_slug: apps-s-1vcpu-1gb
 
