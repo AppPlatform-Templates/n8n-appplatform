@@ -172,11 +172,6 @@ doctl apps create --spec .do/examples/production.yaml
 - **Templates**: [n8n.io/workflows](https://n8n.io/workflows)
 - **Issues**: [GitHub](https://github.com/AppPlatform-Templates/n8n-appplatform/issues)
 
-## License
-
-- n8n: Sustainable Use License ([Fair-code](https://github.com/n8n-io/n8n/blob/master/LICENSE.md))
-- This Template: MIT
-
 ---
 
 **Ready to automate?** Choose your tier above and start building workflows! 🚀
