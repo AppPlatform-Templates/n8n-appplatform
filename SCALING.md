@@ -166,34 +166,35 @@ doctl apps create --spec .do/examples/with-runners.yaml
 **Architecture:**
 ```
 ┌──────────┐
-│   Main   │ ← UI + API + Runner Broker
+│   Main   │ ← UI + API
+│          │◄──── Runners (sandboxed for manual execution)
 └────┬─────┘
      │
-┌────▼─────┐    ┌────────────┐
-│  Redis   │◄───┤ Worker Pool│
-└──────────┘    └──────┬─────┘
-                       │ Code nodes
-                       ▼
-                ┌──────────────┐
-                │ Runner Pool  │
-                └──────────────┘
+┌────▼─────┐
+│  Redis   │
+│  Queue   │
+└────┬─────┘
+     │
+┌────▼──────┐
+│Worker Pool│ ← Execute workflows (code runs in-process)
+└───────────┘
 ```
 
 **What you get:**
-- Main instance (UI/API)
-- Multiple worker instances
-- Multiple runner instances
+- Main instance (UI/API) with task runners
+- Multiple worker instances (horizontal scaling)
+- Runners for secure manual testing
 - Redis coordination
 - Full scalability
 
 **How it works:**
 1. Main receives requests → adds to queue
 2. Workers pull jobs → execute workflows
-3. When workflow hits Code node:
-   - Worker delegates to main's runner broker
-   - Runner executes code
-   - Result returns to worker
-4. Worker completes workflow
+3. For **manual executions** (via UI):
+   - Main delegates Code nodes to runners (sandboxed)
+4. For **queued executions** (scheduled/triggered):
+   - Workers execute Code nodes in-process (high performance)
+5. Worker completes workflow → updates database
 
 **Best for:**
 - 1000+ workflows/day
@@ -203,10 +204,10 @@ doctl apps create --spec .do/examples/with-runners.yaml
 - Teams (20+ users)
 
 **Scaling:**
-- Workers: Scale 2-10+ instances
-- Runners: Match or exceed worker count
-- Redis: Consider larger instance
-- PostgreSQL: Enable HA, add replicas
+- Workers: Scale 2-10+ instances (handles queued workflow execution)
+- Runners: Scale 2-4 instances (handles manual Code node execution)
+- Redis: Consider larger instance for high queue depth
+- PostgreSQL: Enable HA, add replicas for production
 
 **Auto-scaling:**
 - Requires dedicated CPU instances (`apps-d-*`)
@@ -260,18 +261,19 @@ doctl apps create --spec .do/examples/production.yaml
 
 **Indicators:**
 - ✓ Executing > 1000 workflows/day
-- ✓ Heavy Code node usage
+- ✓ Need sandboxed code execution for testing
 - ✓ Workers hitting CPU limits
 - ✓ Need auto-scaling
 - ✓ Enterprise requirements
 
 **Migration:**
-1. Add runner component
-2. Configure main as runner broker
-3. Configure workers to enable runners
-4. Optionally switch to dedicated CPU
-5. Configure autoscaling
+1. Add runner component for main service
+2. Configure main as runner broker (internal_ports: [5679])
+3. Disable runners on workers (N8N_RUNNERS_ENABLED: false)
+4. Optionally switch to dedicated CPU for autoscaling
+5. Configure autoscaling on workers and runners
 6. Deploy updated spec
+7. Test: manual executions use runners, queued use in-process
 
 ## Scaling Individual Components
 
@@ -301,17 +303,24 @@ doctl apps update YOUR_APP_ID --spec <updated-spec>
 
 ### Scaling Runners
 
-**Match or exceed worker count:**
-- Code-light workflows: 1 runner per 2 workers
-- Code-heavy workflows: 1 runner per worker
-- Very code-heavy: 2 runners per worker
+**Runners are for manual executions only in production mode:**
+- Start with 2-4 runner instances
+- Scale based on concurrent manual testing/debugging load
+- Independent of worker count (workers run code in-process)
+
+**When to add runners:**
+- Multiple developers testing Code nodes simultaneously
+- Heavy manual workflow development/debugging
+- Frequent UI-based workflow testing
 
 **Horizontal Scaling:**
 ```bash
 workers:
   - name: n8n-runner
-    instance_count: 5  # Match worker count
+    instance_count: 4  # Scale based on manual execution needs
 ```
+
+**Note:** In production mode, queued workflows execute code in workers directly. Runners are only used for manual executions via UI.
 
 ### Vertical Scaling
 
