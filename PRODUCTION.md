@@ -38,7 +38,7 @@ For maximum security:
 
 ```bash
 # Generate a strong encryption key
-openssl rand -hex 32
+openssl rand -base64 32
 
 # Store securely - NEVER:
 # - Commit to git
@@ -618,15 +618,19 @@ WHERE "startedAt" < NOW() - INTERVAL '30 days';
 **Configuration**:
 ```bash
 # Main instance (API + UI)
-N8N_MODE=main
 EXECUTIONS_MODE=queue
-QUEUE_BULL_REDIS_HOST=your-redis.db.ondigitalocean.com
-QUEUE_BULL_REDIS_PASSWORD=your-redis-password
+QUEUE_BULL_REDIS_HOST=${n8n-redis.HOSTNAME}
+QUEUE_BULL_REDIS_PORT=${n8n-redis.PORT}
+QUEUE_BULL_REDIS_PASSWORD=${n8n-redis.PASSWORD}
+QUEUE_BULL_REDIS_TLS=true
 
 # Worker instances (execution only)
-N8N_MODE=worker
 EXECUTIONS_MODE=queue
-QUEUE_BULL_REDIS_HOST=your-redis.db.ondigitalocean.com
+QUEUE_BULL_REDIS_HOST=${n8n-redis.HOSTNAME}
+QUEUE_BULL_REDIS_PORT=${n8n-redis.PORT}
+QUEUE_BULL_REDIS_PASSWORD=${n8n-redis.PASSWORD}
+QUEUE_BULL_REDIS_TLS=true
+N8N_CONCURRENCY_PRODUCTION_LIMIT=10
 ```
 
 **Cost**: $100-200+/month
@@ -935,19 +939,23 @@ doctl apps update YOUR_APP_ID --spec <spec-file>
 
 ### Runner Architecture
 
+**In Production Mode on App Platform:**
+
 ```
-Worker hits Code node
+Manual Execution (UI) hits Code node
         ↓
-Sends to Main's Runner Broker (port 5679)
+Main Service's Runner Broker (port 5679)
         ↓
 Runner Pool picks up task
         ↓
 Executes JavaScript/Python in sandbox
         ↓
-Returns result to Worker
+Returns result to Main
         ↓
-Worker continues workflow
+Main completes workflow
 ```
+
+**Note:** Queued executions (scheduled/triggered) run code in-process on workers without runners for performance.
 
 ### When to Use Runners
 
@@ -964,15 +972,18 @@ Worker continues workflow
 
 ### Scaling Runners
 
-**Matching Workers:**
-- Code-light: 1 runner per 2 workers
-- Code-moderate: 1 runner per worker  
-- Code-heavy: 2 runners per worker
+**In Production Mode:**
+Runners are for manual executions only (via UI/API testing). Scale based on concurrent manual testing needs, not worker count.
+
+**Recommended:**
+- Start with 2-4 runner instances
+- Scale based on developer/testing activity
+- Independent of worker count
 
 **Monitor:**
-- Runner CPU usage
-- Code execution times
-- Queue wait times
+- Runner CPU usage during manual testing
+- Manual execution code execution times
+- Runner availability during peak development hours
 
 ## Redis Performance
 

@@ -62,7 +62,7 @@ When prompted:
 **N8N_ENCRYPTION_KEY** (⚠️ MUST CHANGE):
 ```bash
 # Generate a secure key:
-openssl rand -hex 32
+openssl rand -base64 32
 ```
 Copy the output and paste it as the `N8N_ENCRYPTION_KEY` value.
 
@@ -75,12 +75,14 @@ The Deploy-to-DO button will automatically create a PostgreSQL database and set 
 - ✅ `DB_POSTGRESDB_DATABASE` = Auto-configured
 - ✅ `DB_POSTGRESDB_USER` = Auto-configured
 - ✅ `DB_POSTGRESDB_PASSWORD` = Auto-configured
+- ✅ `DB_POSTGRESDB_SSL_ENABLED` = `true` (required for DO managed DB)
+- ✅ `DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED` = `false`
 
 #### Application URLs
 
 The Deploy-to-DO process will automatically set:
-- ✅ `N8N_HOST` = Your app's URL
-- ✅ `WEBHOOK_URL` = Webhook base URL
+- ✅ `WEBHOOK_URL` = `${APP_URL}/` (automatically uses your app's URL)
+- ✅ `N8N_PROXY_HOPS` = `1` (App Platform runs behind reverse proxy)
 
 ### 5. Optional: Configure File Storage
 
@@ -271,7 +273,7 @@ For production workloads:
 ## Security Best Practices
 
 ### 1. Encryption Key
-- ✅ Use strong, random encryption key
+- ✅ Use strong, random encryption key: `openssl rand -base64 32`
 - ✅ Never reuse between environments
 - ✅ Store securely (DO encrypts environment variables)
 
