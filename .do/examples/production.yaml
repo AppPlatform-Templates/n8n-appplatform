@@ -60,6 +60,8 @@ services:
         value: ${n8n-redis.PORT}
       - key: QUEUE_BULL_REDIS_PASSWORD
         value: ${n8n-redis.PASSWORD}
+      - key: QUEUE_BULL_REDIS_TLS
+        value: "true"
 
       # n8n Configuration
       # WEBHOOK_URL overrides N8N_HOST + N8N_PROTOCOL for external URLs
@@ -177,6 +179,8 @@ workers:
         value: ${n8n-redis.PORT}
       - key: QUEUE_BULL_REDIS_PASSWORD
         value: ${n8n-redis.PASSWORD}
+      - key: QUEUE_BULL_REDIS_TLS
+        value: "true"
       - key: QUEUE_HEALTH_CHECK_ACTIVE
         value: "true"
 
@@ -265,8 +269,8 @@ databases:
     # size: db-s-2vcpu-4gb
 
   - name: n8n-redis
-    engine: REDIS
-    version: "7"
+    engine: VALKEY
+    version: "8"
     production: true  # Production mode for HA
     cluster_name: n8n-redis
     # Consider larger size for high throughput:
