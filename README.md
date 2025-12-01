@@ -16,7 +16,7 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 [![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/AppPlatform-Templates/n8n-appplatform/tree/main)
 
-[📖 Simple Mode Guide](docs/SIMPLE-MODE.md)
+[📖 Simple Mode Guide](docs/SIMPLE-MODE.md) | [📄 Spec](.do/examples/starter.yaml)
 
 ---
 
