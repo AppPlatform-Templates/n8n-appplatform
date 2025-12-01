@@ -9,35 +9,39 @@ This document describes all environment variables required to run n8n on Digital
 | Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
 | `DB_TYPE` | Database type | `postgresdb` | ✅ Yes |
-| `DB_POSTGRESDB_HOST` | PostgreSQL host | `your-db.db.ondigitalocean.com` | ✅ Yes |
-| `DB_POSTGRESDB_PORT` | PostgreSQL port | `25060` | ✅ Yes |
-| `DB_POSTGRESDB_DATABASE` | Database name | `defaultdb` or `n8n` | ✅ Yes |
-| `DB_POSTGRESDB_USER` | Database user | `doadmin` | ✅ Yes |
-| `DB_POSTGRESDB_PASSWORD` | Database password | `your-secure-password` | ✅ Yes (SECRET) |
+| `DB_POSTGRESDB_HOST` | PostgreSQL host | `${n8n-postgres.HOSTNAME}` | ✅ Yes |
+| `DB_POSTGRESDB_PORT` | PostgreSQL port | `${n8n-postgres.PORT}` | ✅ Yes |
+| `DB_POSTGRESDB_DATABASE` | Database name | `${n8n-postgres.DATABASE}` | ✅ Yes |
+| `DB_POSTGRESDB_USER` | Database user | `${n8n-postgres.USERNAME}` | ✅ Yes |
+| `DB_POSTGRESDB_PASSWORD` | Database password | `${n8n-postgres.PASSWORD}` | ✅ Yes (SECRET) |
+| `DB_POSTGRESDB_SSL_ENABLED` | Enable SSL for database | `true` | ✅ Yes (DO managed DB) |
+| `DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED` | SSL certificate validation | `false` | ✅ Yes (DO managed DB) |
+
+**Note:** DigitalOcean managed databases require SSL connections.
 
 ### n8n Core Configuration
 
 | Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
-| `N8N_HOST` | Public hostname | `your-app.ondigitalocean.app` | ✅ Yes |
-| `N8N_PROTOCOL` | Protocol | `https` | ✅ Yes |
-| `N8N_PORT` | Internal port | `5678` | ✅ Yes |
-| `WEBHOOK_URL` | Webhook base URL | `https://your-app.ondigitalocean.app/` | ✅ Yes |
+| `WEBHOOK_URL` | Webhook base URL (overrides N8N_HOST + N8N_PROTOCOL) | `${APP_URL}/` | ✅ Yes |
+| `N8N_PROXY_HOPS` | Number of reverse proxies | `1` | ✅ Yes (App Platform) |
 | `N8N_ENCRYPTION_KEY` | Encryption key for credentials | Random 32+ char string | ✅ Yes (SECRET) |
 
 **IMPORTANT**: Generate a strong encryption key:
 ```bash
-openssl rand -hex 32
+openssl rand -base64 32
 ```
+
+**Note:** `WEBHOOK_URL` uses `${APP_URL}/` which App Platform automatically replaces with your app's public URL.
 
 ### Application Settings
 
 | Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
-| `N8N_USER_FOLDER` | Data storage path | `/home/node/.n8n` | ✅ Yes |
-| `N8N_DIAGNOSTICS_ENABLED` | Send usage data | `false` | No |
 | `GENERIC_TIMEZONE` | Workflow timezone | `Europe/Amsterdam` | No |
-| `TZ` | Container timezone | `Europe/Amsterdam` | No |
+| `N8N_DIAGNOSTICS_ENABLED` | Send usage data | `false` | No |
+| `N8N_METRICS` | Enable Prometheus metrics | `false` | No |
+| `N8N_LOG_LEVEL` | Logging level | `info` | No |
 
 ## Optional Environment Variables
 
@@ -176,10 +180,13 @@ For scalable deployments with worker pools. See [SCALING.md](SCALING.md) and [do
 | Variable | Description | Example | Required |
 |----------|-------------|---------|----------|
 | `EXECUTIONS_MODE` | Execution mode | `queue` | ✅ Yes |
-| `QUEUE_BULL_REDIS_HOST` | Redis hostname | `n8n-redis.db.ondigitalocean.com` | ✅ Yes |
-| `QUEUE_BULL_REDIS_PORT` | Redis port | `25061` | ✅ Yes |
-| `QUEUE_BULL_REDIS_PASSWORD` | Redis password | `your-redis-password` | ✅ Yes (SECRET) |
+| `QUEUE_BULL_REDIS_HOST` | Redis hostname | `${n8n-redis.HOSTNAME}` | ✅ Yes |
+| `QUEUE_BULL_REDIS_PORT` | Redis port | `${n8n-redis.PORT}` | ✅ Yes |
+| `QUEUE_BULL_REDIS_PASSWORD` | Redis password | `${n8n-redis.PASSWORD}` | ✅ Yes (SECRET) |
+| `QUEUE_BULL_REDIS_TLS` | Enable TLS for Redis | `true` | ✅ Yes (DO managed DB) |
 | `QUEUE_HEALTH_CHECK_ACTIVE` | Enable queue health checks | `true` | No |
+
+**Note:** DigitalOcean managed Redis/Valkey requires TLS connections.
 
 ### Worker Configuration
 
@@ -216,27 +223,53 @@ For secure JavaScript/Python code execution. See [docs/WITH-RUNNERS.md](docs/WIT
 
 **Generate runner token:**
 ```bash
-openssl rand -hex 32
+openssl rand -base64 32
+```
+
+**CRITICAL:** Main service must expose internal port 5679 in app spec:
+```yaml
+services:
+  - name: n8n
+    internal_ports:
+      - 5679  # Task Runner broker port
 ```
 
 ### Runner Variables (Runner Component)
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `N8N_RUNNERS_TASK_BROKER_URI` | Main service broker | `http://n8n-main:5679` |
+| `N8N_RUNNERS_TASK_BROKER_URI` | Main service broker | `http://n8n:5679` or `http://n8n-main:5679` |
 | `N8N_RUNNERS_AUTH_TOKEN` | Same token as main | (SECRET) |
 
 **Example Runner Setup:**
-```bash
+```yaml
 # Main Service
-N8N_RUNNERS_ENABLED=true
-N8N_RUNNERS_MODE=external
-N8N_RUNNERS_BROKER_LISTEN_ADDRESS=0.0.0.0
-N8N_RUNNERS_AUTH_TOKEN=your-generated-token
+services:
+  - name: n8n
+    internal_ports:
+      - 5679
+    envs:
+      - key: N8N_RUNNERS_ENABLED
+        value: "true"
+      - key: N8N_RUNNERS_MODE
+        value: external
+      - key: N8N_RUNNERS_BROKER_LISTEN_ADDRESS
+        value: 0.0.0.0
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: your-generated-token
+        scope: RUN_TIME
+        type: SECRET
 
 # Runner Component
-N8N_RUNNERS_TASK_BROKER_URI=http://n8n-main:5679
-N8N_RUNNERS_AUTH_TOKEN=same-token-as-main
+workers:
+  - name: n8n-runner
+    envs:
+      - key: N8N_RUNNERS_TASK_BROKER_URI
+        value: http://n8n:5679
+      - key: N8N_RUNNERS_AUTH_TOKEN
+        value: same-token-as-main
+        scope: RUN_TIME
+        type: SECRET
 ```
 
 ## Deployment Tier Environment Variables
