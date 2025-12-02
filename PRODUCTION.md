@@ -254,19 +254,13 @@ Create a test workflow:
 #### 2. Check Space Contents
 
 ```bash
-# List files in Space
+# List files in Space (use s3cmd)
 s3cmd ls s3://n8n-storage-ams3/
-
-# Or via doctl
-doctl spaces list-objects n8n-storage-ams3 --region ams3
 ```
 
 #### 3. Monitor Storage Usage
 
 ```bash
-# Check Space size
-doctl spaces list
-
 # View detailed stats via DigitalOcean Control Panel
 # Spaces → Your Space → Settings → Usage
 ```
@@ -306,8 +300,9 @@ s3cmd setlifecycle lifecycle-config.json s3://n8n-storage-ams3
 
 **1. Use CDN (Optional)**
 ```bash
-# Enable CDN for faster file delivery
-doctl spaces cdn enable n8n-storage-ams3 --region ams3
+# Enable CDN via DigitalOcean Control Panel:
+# Spaces → Your Space → Settings → CDN
+# Or use the DigitalOcean API
 ```
 
 **2. Set Bucket Permissions**
