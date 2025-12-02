@@ -80,6 +80,27 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 ---
 
+## Deployment Method
+
+### Simple Mode (Deploy Button)
+1. Click "Deploy to DO" button above
+2. Generate encryption key: `openssl rand -base64 32`
+3. Replace `N8N_ENCRYPTION_KEY` in app env variables
+4. Click "Create App", wait for app to deploy
+5. Access at your app URL
+
+### Advanced Modes (CLI)
+```bash
+# Queue Mode
+doctl apps create --spec .do/examples/queue-mode.yaml
+
+# With Runners
+doctl apps create --spec .do/examples/with-runners.yaml
+
+# Production
+doctl apps create --spec .do/examples/production.yaml
+```
+
 ## Quick Comparison
 
 | Feature | Simple | Queue | Runners | Production |
@@ -162,27 +183,6 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 - Schedule automated reports
 - Create webhook listeners
 - Build AI-powered workflows
-
-## Deployment Method
-
-### Simple Mode (Deploy Button)
-1. Click "Deploy to DO" button above
-2. Generate encryption key: `openssl rand -base64 32`
-3. Replace `N8N_ENCRYPTION_KEY` in app env variables
-4. Click "Create App", wait for app to deploy
-5. Access at your app URL
-
-### Advanced Modes (CLI)
-```bash
-# Queue Mode
-doctl apps create --spec .do/examples/queue-mode.yaml
-
-# With Runners
-doctl apps create --spec .do/examples/with-runners.yaml
-
-# Production
-doctl apps create --spec .do/examples/production.yaml
-```
 
 ## Support
 
