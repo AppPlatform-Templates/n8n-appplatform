@@ -14,6 +14,9 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - ✅ SSL/TLS included
 - 💰 **$27/month**
 
+**Prerequisites:**
+- Generate n8n encryption key: `openssl rand -base64 32`
+
 [![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/AppPlatform-Templates/n8n-appplatform/tree/main)
 
 [📖 Simple Mode Guide](docs/SIMPLE-MODE.md) | [📄 Spec](.do/examples/starter.yaml)
@@ -24,11 +27,16 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 **Best for:** 100-1000 workflows/day, teams, scalability
 
-- 🔄 Main + Worker architecture  
+- 🔄 Main + Worker architecture
 - 🔴 Redis job queue
 - 📈 Horizontal scaling (add workers)
 - 💪 PostgreSQL + Redis databases
 - 💰 **$54/month base** (+$12 per worker)
+
+**Prerequisites:**
+- Generate n8n encryption key: `openssl rand -base64 32`
+- Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
+- Create Redis: `doctl databases create n8n-redis --engine valkey --version 8 --region <region> --size db-s-1vcpu-1gb`
 
 [📖 Deploy Queue Mode](docs/QUEUE-MODE.md) | [📄 Spec](.do/examples/queue-mode.yaml)
 
@@ -43,6 +51,11 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - ⚙️ Single instance + runners
 - 💰 **$39/month base**
 
+**Prerequisites:**
+- Generate n8n encryption key: `openssl rand -base64 32`
+- Generate n8n runner token: `openssl rand -base64 32`
+- Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
+
 [📖 Deploy With Runners](docs/WITH-RUNNERS.md) | [📄 Spec](.do/examples/with-runners.yaml)
 
 ---
@@ -56,6 +69,12 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - 🔄 High availability
 - 💪 Full production stack
 - 💰 **$66/month base** (scales with load)
+
+**Prerequisites:**
+- Generate n8n encryption key: `openssl rand -base64 32`
+- Generate n8n runner token: `openssl rand -base64 32`
+- Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
+- Create Redis: `doctl databases create n8n-redis --engine valkey --version 8 --region <region> --size db-s-1vcpu-1gb`
 
 [📖 Deploy Production](docs/PRODUCTION-SETUP.md) | [📄 Spec](.do/examples/production.yaml)
 
