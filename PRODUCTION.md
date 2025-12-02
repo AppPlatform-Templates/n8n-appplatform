@@ -143,11 +143,11 @@ No configuration needed!
 Create a Space manually via the DigitalOcean Control Panel:
 
 1. Go to [Spaces](https://cloud.digitalocean.com/spaces) in your DigitalOcean account
-2. Click "Create a Space"
+2. Click "Create Bucket"
 3. Choose your region (match your app's region: `ams3`, `nyc3`, `sfo3`, `sgp1`, etc.)
 4. Name your Space: `n8n-storage-ams3` (or use any name you prefer)
 5. Choose file listing: **Restricted** (recommended for security)
-6. Click "Create Space"
+6. Click "Create a Spaces Bucket"
 
 #### 2. Generate Access Keys
 
