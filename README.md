@@ -14,7 +14,7 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - ✅ SSL/TLS included
 - 💰 **$27/month**
 
-**Prerequisites:**
+**Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
 
 [![Deploy to DO](https://www.deploytodo.com/do-btn-blue.svg)](https://cloud.digitalocean.com/apps/new?repo=https://github.com/AppPlatform-Templates/n8n-appplatform/tree/main)
@@ -33,7 +33,7 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - 💪 PostgreSQL + Redis databases
 - 💰 **$54/month base** (+$12 per worker)
 
-**Prerequisites:**
+**Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
 - Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
 - Create Redis: `doctl databases create n8n-redis --engine valkey --version 8 --region <region> --size db-s-1vcpu-1gb`
@@ -51,7 +51,7 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - ⚙️ Single instance + runners
 - 💰 **$39/month base**
 
-**Prerequisites:**
+**Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
 - Generate n8n runner token: `openssl rand -base64 32`. Replace `N8N_RUNNERS_AUTH_TOKEN` env variable in template(doctl) or app(UI)
 - Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
@@ -70,7 +70,7 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - 💪 Full production stack
 - 💰 **$66/month base** (scales with load)
 
-**Prerequisites:**
+**Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
 - Generate n8n runner token: `openssl rand -base64 32`. Replace `N8N_RUNNERS_AUTH_TOKEN` env variable in template(doctl) or app(UI)
 - Create PostgreSQL: `doctl databases create n8n-postgres --engine pg --version 17 --region <region> --size db-s-1vcpu-1gb`
