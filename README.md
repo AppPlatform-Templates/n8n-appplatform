@@ -148,9 +148,9 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 
 ### Simple Mode (Deploy Button)
 1. Click "Deploy to DO" button above
-2. Generate encryption key: `openssl rand -hex 32`
-3. Paste as `N8N_ENCRYPTION_KEY`
-4. Wait 15-20 minutes
+2. Generate encryption key: `openssl rand -base64 32`
+3. Replace `N8N_ENCRYPTION_KEY` in app env variables
+4. Click "Create App", wait for app to deploy
 5. Access at your app URL
 
 ### Advanced Modes (CLI)
