@@ -65,6 +65,14 @@ services:
       - key: GENERIC_TIMEZONE
         value: Europe/Amsterdam
 
+      # Template Tracking (for DigitalOcean analytics)
+      - key: BASE_TEMPLATE
+        value: "n8n"
+      - key: TEMPLATE_TYPE
+        value: "simple-mode"
+      - key: TEMPLATE_VERSION
+        value: "v1.0.0"
+
       # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
       # App Platform uses ephemeral storage - files are lost on container restart
       #
