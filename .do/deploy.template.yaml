@@ -1,6 +1,5 @@
 spec:
   name: n8n
-  region: ams
 
   services:
     - name: n8n

@@ -5,7 +5,6 @@
 # Deploy with: doctl apps create --spec .do/examples/starter.yaml
 
 name: n8n
-region: ams
 
 services:
   - name: n8n

@@ -6,7 +6,6 @@
 # Deploy with: doctl apps create --spec .do/examples/with-runners.yaml
 
 name: n8n-with-runners
-region: ams
 
 # Main Service - UI, API, Webhooks, Workflow Execution
 services:

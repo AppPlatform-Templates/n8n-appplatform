@@ -13,7 +13,6 @@
 # Auto-scale: Requires dedicated CPU instances (apps-d-*)
 
 name: n8n-production
-region: ams
 
 # Main Service - UI, API, Webhooks
 services:

@@ -3,7 +3,6 @@
 # For Deploy-to-DO button, use .do/deploy.template.yaml instead
 
 name: n8n
-region: ams
 
 services:
   - name: n8n

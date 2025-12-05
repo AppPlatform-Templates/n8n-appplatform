@@ -6,7 +6,6 @@
 # Scale workers: doctl apps update YOUR_APP_ID --spec <updated-spec>
 
 name: n8n-queue-mode
-region: ams
 
 # Main Service - UI, API, Webhooks
 services:
