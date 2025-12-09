@@ -16,14 +16,11 @@ User → n8n Instance (UI/API/Execution) ⟷ Task Runners (Sandboxed Code)
 2. **Task Runners**: Execute JavaScript/Python Code nodes in sandboxed containers
 3. **PostgreSQL**: Data storage
 
-## Cost
-
-- Base: $39/month (Main + 1 Runner + PostgreSQL)
-- Scale: +$12/month per additional runner
+For detailed pricing information, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 ## Best For
 
-- < 500 workflows/day
+- Moderate workloads
 - Heavy use of Code nodes (JavaScript/Python)
 - Security-critical code execution
 - Multi-tenant environments
@@ -72,7 +69,7 @@ services:
 
 - No queue mode (single instance)
 - Limited workflow concurrency
-- Not suitable for > 500 workflows/day
+- Not suitable for enterprise workloads
 - All executions run on main instance
 
 ## Scaling Runners
@@ -116,7 +113,7 @@ doctl apps update YOUR_APP_ID --spec <updated-spec>
 ## When to Use Queue Mode Instead
 
 Upgrade to queue-mode if you need:
-- > 500 workflows/day
+- Growing workloads
 - Horizontal scaling of workflow execution
 - High availability
 - Separate webhook/UI from execution layer
@@ -126,7 +123,7 @@ See [QUEUE-MODE.md](QUEUE-MODE.md) for queue mode deployment.
 ## When to Use Production Mode
 
 Upgrade to production if you need:
-- Queue mode + runners (1000+ workflows/day)
+- Queue mode + runners for enterprise workloads
 - Both scalability AND code sandboxing
 - Enterprise scale
 

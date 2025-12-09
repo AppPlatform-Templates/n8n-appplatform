@@ -15,15 +15,7 @@ Before deploying, you'll need:
 3. **PostgreSQL Database** (included in deployment)
 4. **Credit Card** on file (for billing)
 
-## Estimated Monthly Cost
-
-| Component | Size | Cost/Month |
-|-----------|------|------------|
-| n8n Service | apps-s-1vcpu-1gb | $12.00 |
-| PostgreSQL Database | db-s-1vcpu-1gb | $15.00 |
-| **Total** | | **$27.00** |
-
-> Prices are estimates. Actual costs may vary based on usage and region.
+For detailed pricing information based on instance sizes and resources, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 ## Deployment Steps
 
@@ -235,8 +227,8 @@ If experiencing performance issues:
 1. Go to your app → n8n service
 2. Click "Edit Plan"
 3. Select larger instance:
-   - `apps-s-1vcpu-2gb` ($18/mo) - More memory
-   - `apps-s-2vcpu-4gb` ($50/mo) - More CPU & memory
+   - `apps-s-1vcpu-2gb` - More memory
+   - `apps-s-2vcpu-4gb` - More CPU & memory
 
 ### Database Scaling
 
@@ -257,7 +249,7 @@ If experiencing performance issues:
 ### Development/Testing
 
 For non-production use:
-- Use **Dev Database** ($7/mo instead of $15/mo)
+- Use **Dev Database** (lower cost option)
   - Note: PostgreSQL only, single database
 - Use smallest instance size
 - Disable when not in use

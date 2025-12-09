@@ -47,11 +47,7 @@ This architecture provides:
 - Each worker has its own task runner pool (follows n8n's sidecar pattern)
 - Horizontal scaling through worker services with dedicated runners
 
-## Cost
-
-- Base: $66/month
-- Scale: +$24/month per worker+runner pair
-- Auto-scale: +$22/month per instance (dedicated CPU)
+For detailed pricing information, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 ## Deployment
 

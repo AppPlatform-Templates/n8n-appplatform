@@ -6,13 +6,12 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 ### 🚀 Simple Mode (Recommended Start)
 
-**Best for:** Personal use, testing, < 100 workflows/day
+**Best for:** Personal use, testing, small workloads
 
 - ✅ One-click deployment
 - ✅ Single instance (UI + API + execution)
 - ✅ PostgreSQL database
 - ✅ SSL/TLS included
-- 💰 **$27/month**
 
 **Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
@@ -25,13 +24,12 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 ### ⚡ Queue Mode (Production Ready)
 
-**Best for:** 100-1000 workflows/day, teams, scalability
+**Best for:** Teams, scalability, growing workloads
 
 - 🔄 Main + Worker architecture
 - 🔴 Redis job queue
 - 📈 Horizontal scaling (add workers)
 - 💪 PostgreSQL + Redis databases
-- 💰 **$54/month base** (+$12 per worker)
 
 **Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
@@ -49,7 +47,6 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - 🏃 Code execution in sandbox
 - 🛡️ Secure isolation for Code nodes
 - ⚙️ Single instance + runners
-- 💰 **$39/month base**
 
 **Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
@@ -62,13 +59,12 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 
 ### 🏢 Production (Enterprise Scale)
 
-**Best for:** 1000+ workflows/day, code-heavy, HA
+**Best for:** Enterprise workloads, code-heavy, HA
 
 - 🎯 Queue + Workers + Runners
 - 📊 Auto-scaling capable
 - 🔄 High availability
 - 💪 Full production stack
-- 💰 **$66/month base** (scales with load)
 
 **Prerequisites: (⚠️ MUST DO)**
 - Generate n8n encryption key: `openssl rand -base64 32`. Replace `N8N_ENCRYPTION_KEY` env variable in template(doctl) or app(UI)
@@ -77,6 +73,12 @@ Deploy the powerful workflow automation platform [n8n](https://n8n.io) to Digita
 - Create Redis: `doctl databases create n8n-redis --engine valkey --version 8 --region <region> --size db-s-1vcpu-1gb`
 
 [📖 Deploy Production](docs/PRODUCTION-SETUP.md) | [📄 Spec](.do/examples/production.yaml)
+
+---
+
+## Pricing
+
+For detailed pricing information based on instance sizes and resources, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 ---
 
@@ -100,17 +102,6 @@ doctl apps create --spec .do/examples/with-runners.yaml
 # Production
 doctl apps create --spec .do/examples/production.yaml
 ```
-
-## Quick Comparison
-
-| Feature | Simple | Queue | Runners | Production |
-|---------|--------|-------|---------|------------|
-| Workflows/day | < 100 | 100-1000 | < 500 | 1000+ |
-| Deploy method | Button | CLI | CLI | CLI |
-| Horizontal scale | ❌ | ✅ | ❌ | ✅ |
-| Code sandboxing | ❌ | ❌ | ✅ | ✅ |
-| Redis queue | ❌ | ✅ | ❌ | ✅ |
-| Cost/month | $27 | $54+ | $39+ | $66+ |
 
 **Need help deciding?** See [SCALING.md](SCALING.md)
 

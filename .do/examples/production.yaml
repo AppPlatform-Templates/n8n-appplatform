@@ -1,7 +1,6 @@
 # n8n Production Deployment
 # Queue mode + Worker Services + Task Runners
-# For 1000+ workflows/day, enterprise scale
-# Cost: ~$66/month base (scales with workers/runners)
+# For enterprise workloads
 #
 # Architecture:
 # - Main service: UI/API/Webhooks + task runner broker + runners
@@ -128,8 +127,6 @@ services:
       #   1. Create Spaces bucket via DigitalOcean Control Panel
       #   2. doctl spaces keys create n8n-storage-key
       #   3. Uncomment and configure variables below
-      #
-      # Cost: $5/month for 250GB + $0.02/GB thereafter
       #
       # - key: N8N_DEFAULT_BINARY_DATA_MODE
       #   value: filesystem

@@ -15,10 +15,7 @@ Main (UI/API) → Redis Queue → Workers (Execute)
 3. **Redis**: Job queue coordination
 4. **PostgreSQL**: Data storage
 
-## Cost
-
-- Base: $54/month (Main + 1 Worker + Redis + PG)
-- Scale: +$12/month per additional worker
+For detailed pricing information, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 ## Deployment
 

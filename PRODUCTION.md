@@ -269,11 +269,6 @@ s3cmd ls s3://n8n-storage-ams3/
 
 #### Cost Management
 
-**Spaces Pricing**:
-- $5/month for 250GB storage
-- $0.02/GB after that
-- $0.01/GB for outbound transfer
-
 **Optimization**:
 ```bash
 # Set lifecycle rules to auto-delete old files
@@ -506,8 +501,6 @@ curl https://your-app.ondigitalocean.app/api/v1/workflows \
 
 ### 1. Instance Sizing
 
-**Current**: apps-s-1vcpu-1gb ($12/mo)
-
 **Upgrade When**:
 - CPU consistently > 70%
 - Memory consistently > 80%
@@ -515,14 +508,12 @@ curl https://your-app.ondigitalocean.app/api/v1/workflows \
 - Slow UI performance
 
 **Recommended Sizes**:
-- **Light use** (< 100 workflows/day): apps-s-1vcpu-1gb
-- **Medium use** (100-1000/day): apps-s-1vcpu-2gb
-- **Heavy use** (1000+/day): apps-s-2vcpu-4gb
+- **Light use**: apps-s-1vcpu-1gb
+- **Medium use**: apps-s-1vcpu-2gb
+- **Heavy use**: apps-s-2vcpu-4gb
 - **Production** (high availability): apps-d-* (dedicated CPU)
 
 ### 2. Database Sizing
-
-**Current**: db-s-1vcpu-1gb ($15/mo)
 
 **Upgrade When**:
 - Database CPU > 80%
@@ -590,7 +581,7 @@ WHERE "startedAt" < NOW() - INTERVAL '30 days';
 
 ### Vertical Scaling (Single Instance)
 
-**When**: Up to ~1000 executions/day
+**When**: Moderate workloads
 
 **How**:
 1. Upgrade app instance size
@@ -598,11 +589,9 @@ WHERE "startedAt" < NOW() - INTERVAL '30 days';
 3. Optimize workflows
 4. Add caching
 
-**Cost**: $50-100/month
-
 ### Horizontal Scaling (Multiple Instances)
 
-**When**: > 1000 executions/day, need HA
+**When**: Enterprise workloads, need HA
 
 **Requirements**:
 - Queue mode enabled
@@ -628,8 +617,6 @@ QUEUE_BULL_REDIS_TLS=true
 N8N_CONCURRENCY_PRODUCTION_LIMIT=10
 ```
 
-**Cost**: $100-200+/month
-
 ### Read Replicas (Database)
 
 **When**: High read load
@@ -638,8 +625,6 @@ N8N_CONCURRENCY_PRODUCTION_LIMIT=10
 1. Add read replica to database
 2. Configure connection URL
 3. Route read queries to replica
-
-**Cost**: + $15/month per replica
 
 ## 🔍 Health Checks
 
@@ -686,15 +671,6 @@ psql "$DATABASE_URL" -c "SELECT 1"
 - [ ] Email notifications sent
 
 ## 📈 Capacity Planning
-
-### Expected Usage
-
-| Workflows/Day | Instance | Database | Est. Cost/Month |
-|---------------|----------|----------|-----------------|
-| < 100 | apps-s-1vcpu-1gb | db-s-1vcpu-1gb | $27 |
-| 100-500 | apps-s-1vcpu-2gb | db-s-1vcpu-2gb | $46 |
-| 500-2000 | apps-s-2vcpu-4gb | db-s-2vcpu-4gb | $110 |
-| 2000+ | Multiple workers | db-s-4vcpu-8gb | $200+ |
 
 ### Growth Planning
 
@@ -851,22 +827,24 @@ See [VERSION.md](VERSION.md) for detailed update instructions.
 
 n8n on App Platform supports multiple deployment tiers. Choose based on your needs:
 
-### Simple Mode ($27/month)
+### Simple Mode
 - Single instance
-- Best for: < 100 workflows/day
+- Best for: Small workloads
 - See [docs/SIMPLE-MODE.md](docs/SIMPLE-MODE.md)
 
-### Queue Mode ($54/month base)
+### Queue Mode
 - Main + Workers + Redis
-- Best for: 100-1000 workflows/day  
+- Best for: Growing workloads
 - Horizontal scaling
 - See [docs/QUEUE-MODE.md](docs/QUEUE-MODE.md)
 
-### Production Mode ($66/month base)
+### Production Mode
 - Queue + Workers + Runners
-- Best for: 1000+ workflows/day
+- Best for: Enterprise workloads
 - Full scalability
 - See [docs/PRODUCTION-SETUP.md](docs/PRODUCTION-SETUP.md)
+
+For detailed pricing information, visit the [DigitalOcean App Platform Pricing](https://www.digitalocean.com/pricing/app-platform) page.
 
 **Migration guide:** See [SCALING.md](SCALING.md)
 
@@ -915,7 +893,7 @@ Stores Results (PostgreSQL)
 ### Scaling Workers
 
 **Rule of Thumb:**
-- 1 worker = ~10 concurrent workflows
+- Start with 1 worker and scale based on actual usage
 - Scale based on queue depth
 - Monitor CPU/memory per worker
 
@@ -968,7 +946,7 @@ Service completes workflow
 ❌ **Skip runners if:**
 - No Code nodes in workflows
 - Only using built-in nodes
-- Cost-sensitive (saves $12/month per runner pool)
+- Cost-sensitive
 
 ### Scaling Runners
 
@@ -1004,8 +982,8 @@ Each worker service needs its own runner pool. Scale runner pools proportionally
 ### Sizing Redis
 
 **Start Small:**
-- db-s-1vcpu-1gb ($15/month)
-- Good for < 1000 jobs/day
+- db-s-1vcpu-1gb
+- Good for moderate workloads
 
 **Scale Up When:**
 - Memory > 80%
@@ -1013,8 +991,8 @@ Each worker service needs its own runner pool. Scale runner pools proportionally
 - Connection limit reached
 
 **Larger Sizes:**
-- db-s-1vcpu-2gb ($30/month)
-- db-s-2vcpu-4gb ($60/month)
+- db-s-1vcpu-2gb
+- db-s-2vcpu-4gb
 
 ## Database in Queue Mode
 

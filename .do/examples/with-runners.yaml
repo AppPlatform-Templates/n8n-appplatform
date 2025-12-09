@@ -1,7 +1,6 @@
 # n8n with Task Runners
 # For apps using JavaScript/Python Code nodes with sandboxing
 # No queue mode - single instance with runners
-# Cost: ~$39/month (Main + 1 Runner + PostgreSQL)
 #
 # Deploy with: doctl apps create --spec .do/examples/with-runners.yaml
 
@@ -103,8 +102,6 @@ services:
       #   1. Create Spaces bucket via DigitalOcean Control Panel
       #   2. doctl spaces keys create n8n-storage-key
       #   3. Uncomment and configure variables below
-      #
-      # Cost: $5/month for 250GB + $0.02/GB thereafter
       #
       # - key: N8N_DEFAULT_BINARY_DATA_MODE
       #   value: filesystem

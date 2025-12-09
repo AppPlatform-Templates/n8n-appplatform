@@ -1,6 +1,5 @@
 # n8n Queue Mode Deployment
-# For 100-1000 workflows/day, scalable production use
-# Cost: ~$54/month base (Main + 1 Worker + PostgreSQL + Redis)
+# For growing workloads, scalable production use
 #
 # Deploy with: doctl apps create --spec .do/examples/queue-mode.yaml
 # Scale workers: doctl apps update YOUR_APP_ID --spec <updated-spec>
@@ -99,8 +98,6 @@ services:
       #   1. Create Spaces bucket via DigitalOcean Control Panel
       #   2. doctl spaces keys create n8n-storage-key
       #   3. Uncomment and configure variables below
-      #
-      # Cost: $5/month for 250GB + $0.02/GB thereafter
       #
       # - key: N8N_DEFAULT_BINARY_DATA_MODE
       #   value: filesystem

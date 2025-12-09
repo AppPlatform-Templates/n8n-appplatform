@@ -7,7 +7,6 @@ Simple mode is the default n8n deployment - a single instance handling all opera
 - All-in-one n8n instance (UI + API + execution)
 - PostgreSQL database
 - SSL/TLS encryption
-- **Cost:** $27/month
 
 ## Architecture
 
@@ -19,7 +18,7 @@ User → n8n Instance → PostgreSQL
 ## Best For
 
 - Personal use, testing
-- < 100 workflows/day
+- Small workloads
 - Small teams (1-5 users)
 - Simple workflows
 
@@ -37,7 +36,7 @@ Use the Deploy-to-DO button in the README.
 ## When to Upgrade
 
 See [SCALING.md](../SCALING.md) if you need:
-- > 100 workflows/day
+- Growing workloads
 - Multiple concurrent executions
 - Code execution sandboxing
 - High availability
