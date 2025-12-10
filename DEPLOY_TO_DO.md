@@ -101,10 +101,7 @@ If you need persistent file storage (for uploads, binary data):
 
 ### 6. Deploy!
 
-Click **"Deploy"** button and wait:
-- ⏱️ Build time: 5-15 minutes
-- ⏱️ Database creation: 10-15 minutes
-- ⏱️ Total: ~20-30 minutes
+Click **"Deploy"** button and wait for the deployment to finish.
 
 You can monitor progress in the "Activity" tab.
 
@@ -160,7 +157,7 @@ This restricts database access to only your app.
 If you forked the repository:
 1. Make changes locally
 2. Commit and push to GitHub
-3. App Platform auto-deploys
+3. App Platform auto-deploys(if `deploy_on_push` is `true` in app spec)
 
 ### Updating n8n Version
 

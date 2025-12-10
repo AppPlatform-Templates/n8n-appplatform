@@ -140,7 +140,7 @@ N8N_METRICS=true
 When using the Deploy-to-DO button:
 1. Click the button
 2. Fill in the required environment variables
-3. Replace `CHANGE_THIS_TO_RANDOM_STRING` with actual values
+3. Replace `<REQUIRED>` with actual value
 4. Deploy
 
 ### Via doctl CLI
