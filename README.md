@@ -144,7 +144,6 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 
 ### Getting Started
 - **[Deployment Guide](DEPLOY_TO_DO.md)** - Step-by-step deployment
-- **[How to Use n8n](HOW_TO_USE_N8N.md)** - Build your first workflow
 - **[Environment Variables](ENV_TEMPLATE.md)** - Configuration reference
 
 ### Scaling & Production

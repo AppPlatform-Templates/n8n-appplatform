@@ -288,7 +288,6 @@ For production workloads:
 
 - **n8n Documentation**: [docs.n8n.io](https://docs.n8n.io)
 - **App Platform Docs**: [docs.digitalocean.com/products/app-platform](https://docs.digitalocean.com/products/app-platform/)
-- **Getting Started Guide**: [HOW_TO_USE_N8N.md](HOW_TO_USE_N8N.md)
 - **Environment Variables**: [ENV_TEMPLATE.md](ENV_TEMPLATE.md)
 - **Version Information**: [VERSION.md](VERSION.md)
 
