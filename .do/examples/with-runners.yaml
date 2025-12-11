@@ -82,12 +82,12 @@ services:
         value: Europe/Amsterdam
 
       # Template Tracking (for DigitalOcean analytics)
-      - key: BASE_TEMPLATE
+      - key: APPPLAT_BASE_TEMPLATE
         value: "n8n"
-      - key: TEMPLATE_TYPE
+      - key: APPPLAT_TEMPLATE_TYPE
         value: "with-runners"
-      - key: TEMPLATE_VERSION
-        value: "v1.0.0"
+      - key: APPPLAT_TEMPLATE_COMMIT_SHA
+        value: ${_self.COMMIT_HASH}
 
       # ⚠️ PRODUCTION STORAGE: Configure Spaces for persistent file storage
       # App Platform uses ephemeral storage - files are lost on container restart
