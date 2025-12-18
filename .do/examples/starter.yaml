@@ -4,6 +4,9 @@
 # Deploy with: doctl apps create --spec .do/examples/starter.yaml
 
 name: n8n
+# Optionally you can chose a region where the deployment will be hosted
+# Otherwise, DO will chose the nearest region for you in the wizard
+# region: nyc
 
 services:
   - name: n8n
