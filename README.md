@@ -91,9 +91,12 @@ For detailed pricing information based on instance sizes and resources, visit th
 4. Click "Create App", wait for app to deploy
 5. Access at your app URL
 
-### Advanced Modes (CLI)
+### Deploy via CLI
 ```bash
-# Queue Mode
+# Simple/Starter Mode
+doctl apps create --spec .do/app.yaml
+
+# Queue/Scaling Mode
 doctl apps create --spec .do/examples/queue-mode.yaml
 
 # With Runners
@@ -102,6 +105,8 @@ doctl apps create --spec .do/examples/with-runners.yaml
 # Production
 doctl apps create --spec .do/examples/production.yaml
 ```
+
+**To customize**: Fork this repo, update the repo reference in your chosen template (`.do/` folder) to point to your fork, then deploy.
 
 **Need help deciding?** See [SCALING.md](SCALING.md)
 
@@ -154,6 +159,7 @@ n8n is a **fair-code licensed workflow automation tool** - an open-source altern
 ### Mode-Specific Guides
 - **[Simple Mode](docs/SIMPLE-MODE.md)** - Default deployment
 - **[Queue Mode](docs/QUEUE-MODE.md)** - Scalable architecture
+- **[With Runners](docs/WITH-RUNNERS.md)** - Sandboxed code execution
 - **[Production Setup](docs/PRODUCTION-SETUP.md)** - Enterprise deployment
 
 ## What's Included
